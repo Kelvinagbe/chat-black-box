@@ -198,7 +198,7 @@ export default function BlackBoxChat() {
   );
 }
 
-const styles = {
+const styles: { [key: string]: React.CSSProperties } = {
   container: {
     display: 'flex',
     height: '100vh',
