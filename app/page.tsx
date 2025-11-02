@@ -1,3 +1,5 @@
+'use client' 
+
 import React, { useState, useEffect, CSSProperties } from 'react';
 
 export default function BlackBoxLanding() {
