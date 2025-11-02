@@ -1,113 +1,250 @@
-import Image from 'next/image';
+import React, { useState, useEffect } from 'react';
 
-export default function Home() {
+export default function BlackBoxLanding() {
+  const [displayText, setDisplayText] = useState('');
+  const [showButton, setShowButton] = useState(false);
+  const [isTypingComplete, setIsTypingComplete] = useState(false);
+
+  useEffect(() => {
+    const textParts = [
+      'Shadows move in code...\nEnter BlackBox — where ',
+      '<span style="color:red;">secrets</span>',
+      ' become power...\n built by devs for devs'
+    ];
+
+    let partIndex = 0;
+    const speed = 80;
+
+    const typeEffect = () => {
+      if (partIndex < textParts.length) {
+        const part = textParts[partIndex];
+
+        if (/<.*?>/.test(part)) {
+          // If part contains HTML, add it immediately
+          setDisplayText(prev => prev + part);
+          partIndex++;
+          setTimeout(typeEffect, speed);
+        } else {
+          // Type character by character
+          let charIndex = 0;
+          const typeChar = () => {
+            if (charIndex < part.length) {
+              setDisplayText(prev => prev + part.charAt(charIndex));
+              charIndex++;
+              setTimeout(typeChar, speed);
+            } else {
+              partIndex++;
+              setTimeout(typeEffect, speed);
+            }
+          };
+          typeChar();
+        }
+      } else {
+        setIsTypingComplete(true);
+        setShowButton(true);
+      }
+    };
+
+    const timer = setTimeout(typeEffect, 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleEnter = () => {
+    // Navigate to homepage - in a real app, use React Router
+    window.location.href = "homepage.html";
+  };
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
+    <div style={styles.body}>
+      <div style={styles.backgroundGrid}></div>
+
+      {/* Rotating 3D Box */}
+      <div style={styles.cube}>
+        <div style={{...styles.face, ...styles.front}}></div>
+        <div style={{...styles.face, ...styles.back}}></div>
+        <div style={{...styles.face, ...styles.right}}></div>
+        <div style={{...styles.face, ...styles.left}}></div>
+        <div style={{...styles.face, ...styles.top}}></div>
+        <div style={{...styles.face, ...styles.bottom}}></div>
       </div>
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+      <div style={styles.projection}></div>
 
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
+      {/* Title */}
+      <h1 style={styles.title}>
+        <span style={styles.black}>Black</span>
+        <span style={styles.box}>Box</span>
+      </h1>
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
+      {/* Typewriter Text */}
+      <p 
+        style={{
+          ...styles.introText,
+          borderRight: isTypingComplete ? 'none' : '3px solid #00ff7f'
+        }}
+        dangerouslySetInnerHTML={{ __html: displayText }}
+      />
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
+      {/* Enter Button */}
+      {showButton && (
+        <button 
+          style={styles.enterBtn}
+          onClick={handleEnter}
+          onMouseEnter={(e) => {
+            e.target.style.transform = 'translateX(-50%) scale(1.05)';
+            e.target.style.background = 'rgba(0, 255, 127, 0.1)';
+            e.target.style.color = '#00ffcc';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = 'translateX(-50%)';
+            e.target.style.background = 'transparent';
+            e.target.style.color = '#00ff7f';
+          }}
         >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore the Next.js 13 playground.
-          </p>
-        </a>
+          Join blackBox
+        </button>
+      )}
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+      <style>{keyframes}</style>
+    </div>
   );
 }
+
+const styles = {
+  body: {
+    margin: 0,
+    height: '100vh',
+    background: 'radial-gradient(black, #050505)',
+    overflow: 'hidden',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    perspective: '800px',
+    position: 'relative'
+  },
+  backgroundGrid: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    backgroundImage: 'linear-gradient(white 1px, transparent 1px), linear-gradient(90deg, white 1px, transparent 1px)',
+    backgroundSize: '80px 80px',
+    opacity: 0.05,
+    zIndex: 0
+  },
+  cube: {
+    position: 'absolute',
+    top: 'calc(50% - 200px)',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    width: '100px',
+    height: '100px',
+    transformStyle: 'preserve-3d',
+    animation: 'cube-rotate 10s infinite linear',
+    zIndex: 2
+  },
+  face: {
+    position: 'absolute',
+    width: '100px',
+    height: '100px',
+    background: 'black',
+    border: '2px solid white',
+    boxShadow: '0 0 20px white',
+    color: 'white'
+  },
+  front: { transform: 'translateZ(50px)' },
+  back: { transform: 'rotateY(180deg) translateZ(50px)' },
+  right: { transform: 'rotateY(90deg) translateZ(50px)' },
+  left: { transform: 'rotateY(-90deg) translateZ(50px)' },
+  top: { transform: 'rotateX(90deg) translateZ(50px)' },
+  bottom: { transform: 'rotateX(-90deg) translateZ(50px)' },
+  projection: {
+    position: 'absolute',
+    top: '55%',
+    left: '50%',
+    width: '220px',
+    height: '220px',
+    background: 'radial-gradient(circle, rgba(255, 255, 255, 0.5) 0%, transparent 80%)',
+    transform: 'translate(-50%, -50%) rotateX(90deg)',
+    filter: 'blur(50px)',
+    opacity: 0.6,
+    animation: 'beamPulse 2.5s infinite ease-in-out',
+    zIndex: 0
+  },
+  title: {
+    fontFamily: "'Orbitron', sans-serif",
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    fontSize: '60px',
+    fontWeight: 900,
+    letterSpacing: '3px',
+    textTransform: 'uppercase',
+    margin: 0
+  },
+  black: {
+    color: '#b1b2be',
+    textShadow: '1px 1px 2px #333, 2px 2px 4px #222, 3px 3px 6px rgba(0, 0, 0, 0.6)'
+  },
+  box: {
+    color: '#00ff7f',
+    textShadow: '1px 1px 2px #007a3d, 2px 2px 4px #006633, 3px 3px 6px rgba(0, 0, 0, 0.6)'
+  },
+  introText: {
+    position: 'absolute',
+    top: '65%',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    fontSize: '18px',
+    color: '#bfbfbf',
+    fontFamily: "'Orbitron', sans-serif",
+    letterSpacing: '1px',
+    textAlign: 'center',
+    width: '400px',
+    whiteSpace: 'pre-line',
+    animation: 'blinkCursor 0.7s steps(1) infinite'
+  },
+  enterBtn: {
+    position: 'absolute',
+    top: '78%',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    padding: '12px 28px',
+    fontSize: '18px',
+    fontWeight: 'bold',
+    color: '#00ff7f',
+    background: 'transparent',
+    border: '2px solid #00ff7f',
+    borderRadius: '12px',
+    cursor: 'pointer',
+    transition: 'transform 0.3s, background 0.3s, color 0.3s',
+    fontFamily: "'Orbitron', sans-serif"
+  }
+};
+
+const keyframes = `
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap');
+
+  @keyframes cube-rotate {
+    0% { transform: rotateX(0) rotateY(0); }
+    25% { transform: rotateX(90deg) rotateY(180deg); }
+    50% { transform: rotateX(180deg) rotateY(270deg); }
+    75% { transform: rotateX(270deg) rotateY(90deg); }
+    100% { transform: rotateX(360deg) rotateY(360deg); }
+  }
+
+  @keyframes beamPulse {
+    0%, 100% { 
+      opacity: 0.4; 
+      transform: translate(-50%, -50%) rotateX(90deg) scale(1); 
+    }
+    50% { 
+      opacity: 0.8; 
+      transform: translate(-50%, -50%) rotateX(90deg) scale(1.2); 
+    }
+  }
+
+  @keyframes blinkCursor {
+    50% { border-color: transparent; }
+  }
+`;
