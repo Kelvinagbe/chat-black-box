@@ -1,4 +1,4 @@
-'use client' 
+'use client'
 
 import React, { useState, useEffect } from 'react';
 import { Send, Search, MoreVertical, Paperclip, Smile, Menu, X } from 'lucide-react';
@@ -8,19 +8,18 @@ export default function BlackBoxChat() {
   const [message, setMessage] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
-  
+
   useEffect(() => {
     const checkMobile = () => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
       setSidebarOpen(!mobile);
     };
-    
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
-  
+
   const chats = [
     { id: 1, name: 'Dev Team', lastMessage: 'Push to production?', time: '10:30', unread: 2, avatar: 'DT' },
     { id: 2, name: 'Sarah Chen', lastMessage: 'Code review done ✓', time: '09:15', unread: 0, avatar: 'SC' },
@@ -37,79 +36,71 @@ export default function BlackBoxChat() {
     { id: 5, sender: 'Sarah Chen', content: 'Perfect! Let me know if you need anything', time: '09:15', isMine: false },
   ];
 
-  const handleSendMessage = () => {
-    if (message.trim()) {
-      setMessage('');
-    }
-  };
-
-  const handleChatSelect = (index: number) => {
+  const handleSendMessage = () => message.trim() && setMessage('');
+  const handleChatSelect = (index) => {
     setSelectedChat(index);
-    if (isMobile) {
-      setSidebarOpen(false);
-    }
+    isMobile && setSidebarOpen(false);
   };
 
   return (
-    <div style={styles.container}>
-      {/* Overlay for mobile */}
+    <div className="flex h-screen bg-black font-sans overflow-hidden relative">
+      {/* Overlay */}
       {isMobile && sidebarOpen && (
-        <div 
-          style={styles.overlay}
-          onClick={() => setSidebarOpen(false)}
-        />
+        <div className="fixed inset-0 bg-black/70 z-[9]" onClick={() => setSidebarOpen(false)} />
       )}
 
       {/* Sidebar */}
-      <div style={{
-        ...styles.sidebar,
-        ...(isMobile ? styles.sidebarMobile : {}),
-        transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
-      }}>
-        {/* Sidebar Header */}
-        <div style={styles.sidebarHeader}>
-          <h2 style={styles.logo}>
-            <span style={styles.logoBlack}>Black</span>
-            <span style={styles.logoBox}>Box</span>
+      <div 
+        className={`w-[350px] max-w-full bg-[#0a0a0a] border-r border-[#1a1a1a] flex flex-col transition-transform z-10
+          ${isMobile ? 'fixed top-0 left-0 bottom-0 w-[85vw]' : ''} 
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
+      >
+        {/* Header */}
+        <div className="p-4 bg-[#0f0f0f] border-b border-[#1a1a1a] flex justify-between items-center">
+          <h2 className="text-xl font-bold m-0">
+            <span className="text-[#b1b2be]">Black</span>
+            <span className="text-[#00ff7f]">Box</span>
           </h2>
-          <div style={styles.headerIcons}>
-            <Search size={20} color="#00ff7f" style={styles.icon} />
-            <MoreVertical size={20} color="#00ff7f" style={styles.icon} />
+          <div className="flex gap-4">
+            <Search size={20} color="#00ff7f" className="cursor-pointer" />
+            <MoreVertical size={20} color="#00ff7f" className="cursor-pointer" />
           </div>
         </div>
 
-        {/* Search Bar */}
-        <div style={styles.searchContainer}>
-          <Search size={16} color="#666" style={styles.searchIcon} />
+        {/* Search */}
+        <div className="p-4 bg-[#0f0f0f] border-b border-[#1a1a1a] relative">
+          <Search size={16} color="#666" className="absolute left-8 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             placeholder="Search chats..."
-            style={styles.searchInput}
+            className="w-full py-2.5 pl-10 pr-2.5 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg text-white text-sm outline-none"
           />
         </div>
 
         {/* Chat List */}
-        <div style={styles.chatList}>
-          {chats.map((chat, index) => (
+        <div className="flex-1 overflow-y-auto">
+          {chats.map((chat, i) => (
             <div
               key={chat.id}
-              onClick={() => handleChatSelect(index)}
-              style={{
-                ...styles.chatItem,
-                background: selectedChat === index ? 'rgba(0, 255, 127, 0.1)' : 'transparent',
-                borderLeft: selectedChat === index ? '3px solid #00ff7f' : '3px solid transparent',
-              }}
+              onClick={() => handleChatSelect(i)}
+              className={`flex p-4 cursor-pointer gap-3 transition-all ${
+                selectedChat === i ? 'bg-[#00ff7f]/10 border-l-[3px] border-l-[#00ff7f]' : 'border-l-[3px] border-l-transparent'
+              }`}
             >
-              <div style={styles.avatar}>{chat.avatar}</div>
-              <div style={styles.chatInfo}>
-                <div style={styles.chatHeader}>
-                  <span style={styles.chatName}>{chat.name}</span>
-                  <span style={styles.chatTime}>{chat.time}</span>
+              <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#00ff7f] to-[#00cc66] flex items-center justify-center text-black font-bold text-base flex-shrink-0">
+                {chat.avatar}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex justify-between mb-1">
+                  <span className="text-white font-semibold text-[15px]">{chat.name}</span>
+                  <span className="text-[#666] text-xs">{chat.time}</span>
                 </div>
-                <div style={styles.chatFooter}>
-                  <span style={styles.lastMessage}>{chat.lastMessage}</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-[#999] text-sm truncate">{chat.lastMessage}</span>
                   {chat.unread > 0 && (
-                    <span style={styles.unreadBadge}>{chat.unread}</span>
+                    <span className="bg-[#00ff7f] text-black rounded-xl px-2 py-0.5 text-[11px] font-bold min-w-[20px] text-center">
+                      {chat.unread}
+                    </span>
                   )}
                 </div>
               </div>
@@ -118,63 +109,46 @@ export default function BlackBoxChat() {
         </div>
       </div>
 
-      {/* Main Chat Area */}
-      <div style={styles.mainArea}>
+      {/* Main Chat */}
+      <div className="flex-1 flex flex-col bg-[#050505] min-w-0">
         {/* Chat Header */}
-        <div style={styles.chatHeaderArea}>
-          <div style={styles.chatHeaderLeft}>
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              style={styles.menuButton}
-            >
+        <div className="p-4 bg-[#0f0f0f] border-b border-[#1a1a1a] flex justify-between items-center">
+          <div className="flex items-center gap-4 min-w-0 flex-1">
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="bg-transparent border-none text-[#00ff7f] cursor-pointer p-1 flex items-center flex-shrink-0">
               {sidebarOpen && !isMobile ? <X size={24} /> : <Menu size={24} />}
             </button>
-            <div style={styles.avatar}>{chats[selectedChat].avatar}</div>
+            <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#00ff7f] to-[#00cc66] flex items-center justify-center text-black font-bold text-base flex-shrink-0">
+              {chats[selectedChat].avatar}
+            </div>
             <div>
-              <div style={styles.activeChatName}>{chats[selectedChat].name}</div>
-              <div style={styles.onlineStatus}>online</div>
+              <div className="text-white font-semibold text-base truncate">{chats[selectedChat].name}</div>
+              <div className="text-[#00ff7f] text-xs">online</div>
             </div>
           </div>
-          <div style={styles.headerIcons}>
-            <Search size={20} color="#00ff7f" style={styles.icon} />
-            <MoreVertical size={20} color="#00ff7f" style={styles.icon} />
+          <div className="flex gap-4">
+            <Search size={20} color="#00ff7f" className="cursor-pointer" />
+            <MoreVertical size={20} color="#00ff7f" className="cursor-pointer" />
           </div>
         </div>
 
-        {/* Messages Area */}
-        <div style={styles.messagesArea}>
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto p-8 flex flex-col gap-6">
           {messages.map((msg) => (
-            <div
-              key={msg.id}
-              style={{
-                ...styles.messageWrapper,
-                justifyContent: msg.isMine ? 'flex-end' : 'flex-start',
-              }}
-            >
-              <div
-                style={{
-                  ...styles.messageBubble,
-                  background: msg.isMine ? '#00ff7f' : '#1a1a1a',
-                  color: msg.isMine ? '#000' : '#fff',
-                  borderRadius: msg.isMine ? '12px 12px 0 12px' : '12px 12px 12px 0',
-                }}
-              >
-                {!msg.isMine && (
-                  <div style={styles.senderName}>{msg.sender}</div>
-                )}
+            <div key={msg.id} className={`flex gap-3 max-w-[70%] ${msg.isMine ? 'ml-auto flex-row-reverse' : ''}`}>
+              <div className={`py-2.5 px-4 text-sm break-words rounded-xl ${
+                msg.isMine ? 'bg-white text-black border border-[#00ff7f]' : 'bg-[#1a1a1a] text-white'
+              }`}>
+                {!msg.isMine && <div className="text-xs font-semibold mb-1 text-[#00ff7f]">{msg.sender}</div>}
                 <div>{msg.content}</div>
-                <div style={{
-                  ...styles.messageTime,
-                  color: msg.isMine ? '#000' : '#666',
-                }}>{msg.time}</div>
+                <div className="text-[10px] mt-1 text-right text-[#666]">{msg.time}</div>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Input Area */}
-        <div style={styles.inputArea}>
-          <button style={styles.attachButton}>
+        {/* Input */}
+        <div className="p-4 bg-[#0f0f0f] border-t border-[#1a1a1a] flex gap-2.5 items-center">
+          <button className="bg-transparent border-none cursor-pointer p-2 flex items-center flex-shrink-0">
             <Paperclip size={20} color="#00ff7f" />
           </button>
           <input
@@ -183,15 +157,12 @@ export default function BlackBoxChat() {
             onChange={(e) => setMessage(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
             placeholder="Type a message..."
-            style={styles.messageInput}
+            className="flex-1 py-3 px-4 bg-[#1a1a1a] border border-[#2a2a2a] rounded-[25px] text-white text-sm outline-none min-w-0"
           />
-          <button style={styles.emojiButton}>
+          <button className="bg-transparent border-none cursor-pointer p-2 flex items-center flex-shrink-0">
             <Smile size={20} color="#00ff7f" />
           </button>
-          <button
-            onClick={handleSendMessage}
-            style={styles.sendButton}
-          >
+          <button onClick={handleSendMessage} className="bg-[#00ff7f] border-none rounded-full w-10 h-10 flex items-center justify-center cursor-pointer flex-shrink-0">
             <Send size={20} color="#000" />
           </button>
         </div>
@@ -199,277 +170,3 @@ export default function BlackBoxChat() {
     </div>
   );
 }
-
-const styles = {
-  container: {
-    display: 'flex',
-    height: '100vh',
-    background: '#000',
-    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-    overflow: 'hidden',
-    position: 'relative' as 'relative',
-  },
-  overlay: {
-    position: 'fixed' as 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    background: 'rgba(0, 0, 0, 0.7)',
-    zIndex: 9,
-  },
-  sidebar: {
-    width: '350px',
-    maxWidth: '100vw',
-    background: '#0a0a0a',
-    borderRight: '1px solid #1a1a1a',
-    display: 'flex',
-    flexDirection: 'column' as 'column',
-    transition: 'transform 0.3s ease',
-    zIndex: 10,
-  },
-  sidebarMobile: {
-    position: 'fixed' as 'fixed',
-    top: 0,
-    left: 0,
-    bottom: 0,
-    width: '85vw',
-    maxWidth: '350px',
-  },
-  sidebarHeader: {
-    padding: '15px 20px',
-    background: '#0f0f0f',
-    borderBottom: '1px solid #1a1a1a',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  logo: {
-    fontSize: '20px',
-    fontWeight: 'bold',
-    margin: 0,
-  },
-  logoBlack: {
-    color: '#b1b2be',
-  },
-  logoBox: {
-    color: '#00ff7f',
-  },
-  headerIcons: {
-    display: 'flex',
-    gap: '15px',
-  },
-  icon: {
-    cursor: 'pointer',
-    transition: 'transform 0.2s',
-  },
-  searchContainer: {
-    padding: '15px',
-    background: '#0f0f0f',
-    borderBottom: '1px solid #1a1a1a',
-    position: 'relative' as 'relative',
-  },
-  searchIcon: {
-    position: 'absolute' as 'absolute',
-    left: '30px',
-    top: '50%',
-    transform: 'translateY(-50%)',
-  },
-  searchInput: {
-    width: '100%',
-    padding: '10px 10px 10px 40px',
-    background: '#1a1a1a',
-    border: '1px solid #2a2a2a',
-    borderRadius: '8px',
-    color: '#fff',
-    fontSize: '14px',
-    outline: 'none',
-  },
-  chatList: {
-    flex: 1,
-    overflowY: 'auto' as 'auto',
-  },
-  chatItem: {
-    display: 'flex',
-    padding: '15px',
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-    gap: '12px',
-  },
-  avatar: {
-    width: '45px',
-    height: '45px',
-    borderRadius: '50%',
-    background: 'linear-gradient(135deg, #00ff7f, #00cc66)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: '#000',
-    fontWeight: 'bold',
-    fontSize: '16px',
-    flexShrink: 0,
-  },
-  chatInfo: {
-    flex: 1,
-    minWidth: 0,
-  },
-  chatHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    marginBottom: '5px',
-  },
-  chatName: {
-    color: '#fff',
-    fontWeight: '600',
-    fontSize: '15px',
-  },
-  chatTime: {
-    color: '#666',
-    fontSize: '12px',
-  },
-  chatFooter: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  lastMessage: {
-    color: '#999',
-    fontSize: '14px',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap' as 'nowrap',
-  },
-  unreadBadge: {
-    background: '#00ff7f',
-    color: '#000',
-    borderRadius: '12px',
-    padding: '2px 8px',
-    fontSize: '11px',
-    fontWeight: 'bold',
-    minWidth: '20px',
-    textAlign: 'center' as 'center',
-  },
-  mainArea: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column' as 'column',
-    background: '#050505',
-    minWidth: 0,
-  },
-  chatHeaderArea: {
-    padding: '15px 20px',
-    background: '#0f0f0f',
-    borderBottom: '1px solid #1a1a1a',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  chatHeaderLeft: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '15px',
-    minWidth: 0,
-    flex: 1,
-  },
-  menuButton: {
-    background: 'transparent',
-    border: 'none',
-    color: '#00ff7f',
-    cursor: 'pointer',
-    padding: '5px',
-    display: 'flex',
-    alignItems: 'center',
-    flexShrink: 0,
-  },
-  activeChatName: {
-    color: '#fff',
-    fontWeight: '600',
-    fontSize: '16px',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap' as 'nowrap',
-  },
-  onlineStatus: {
-    color: '#00ff7f',
-    fontSize: '12px',
-  },
-  messagesArea: {
-    flex: 1,
-    overflowY: 'auto' as 'auto',
-    padding: '20px',
-    display: 'flex',
-    flexDirection: 'column' as 'column',
-    gap: '10px',
-  },
-  messageWrapper: {
-    display: 'flex',
-    width: '100%',
-  },
-  messageBubble: {
-    maxWidth: '70%',
-    padding: '10px 15px',
-    fontSize: '14px',
-    wordWrap: 'break-word' as 'break-word',
-  },
-  senderName: {
-    fontSize: '12px',
-    fontWeight: '600',
-    marginBottom: '5px',
-    color: '#00ff7f',
-  },
-  messageTime: {
-    fontSize: '10px',
-    marginTop: '5px',
-    textAlign: 'right' as 'right',
-  },
-  inputArea: {
-    padding: '15px 20px',
-    background: '#0f0f0f',
-    borderTop: '1px solid #1a1a1a',
-    display: 'flex',
-    gap: '10px',
-    alignItems: 'center',
-  },
-  attachButton: {
-    background: 'transparent',
-    border: 'none',
-    cursor: 'pointer',
-    padding: '8px',
-    display: 'flex',
-    alignItems: 'center',
-    flexShrink: 0,
-  },
-  messageInput: {
-    flex: 1,
-    padding: '12px 15px',
-    background: '#1a1a1a',
-    border: '1px solid #2a2a2a',
-    borderRadius: '25px',
-    color: '#fff',
-    fontSize: '14px',
-    outline: 'none',
-    minWidth: 0,
-  },
-  emojiButton: {
-    background: 'transparent',
-    border: 'none',
-    cursor: 'pointer',
-    padding: '8px',
-    display: 'flex',
-    alignItems: 'center',
-    flexShrink: 0,
-  },
-  sendButton: {
-    background: '#00ff7f',
-    border: 'none',
-    borderRadius: '50%',
-    width: '40px',
-    height: '40px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
-    transition: 'transform 0.2s, box-shadow 0.2s',
-    flexShrink: 0,
-  },
-};
