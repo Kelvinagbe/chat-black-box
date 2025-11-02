@@ -46,7 +46,7 @@ export default function BlackBoxChat() {
     }
   };
 
-  const handleChatSelect = (index) => {
+  const handleChatSelect = (index: number) => {
     setSelectedChat(index);
     if (isMobile) {
       setSidebarOpen(false);
