@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react';
-import { Send, Search, MoreVertical, Paperclip, Smile, Menu, X, MessageSquare, Users, User } from 'lucide-react';
+import { Send, Search, MoreVertical, Paperclip, Smile, Menu, X, MessageSquare, Users, User, Check } from 'lucide-react';
 
 export default function BlackBoxChat() {
   const [selectedChat, setSelectedChat] = useState(0);
@@ -28,11 +28,11 @@ export default function BlackBoxChat() {
   }, []);
 
   const chats = [
-    { id: 1, name: 'Dev Team', lastMessage: 'Push to production?', time: '10:30', unread: 2, avatar: 'DT' },
-    { id: 2, name: 'Sarah Chen', lastMessage: 'Code review done ✓', time: '09:15', unread: 0, avatar: 'SC' },
-    { id: 3, name: 'Project Alpha', lastMessage: 'Meeting at 3pm', time: 'Yesterday', unread: 5, avatar: 'PA' },
-    { id: 4, name: 'John Doe', lastMessage: 'Thanks for the help!', time: 'Yesterday', unread: 0, avatar: 'JD' },
-    { id: 5, name: 'Bug Hunters', lastMessage: 'Found critical issue', time: 'Friday', unread: 1, avatar: 'BH' },
+    { id: 1, name: 'Dev Team', lastMessage: 'Push to production?', time: '10:30', unread: 2, avatar: 'DT', verified: true },
+    { id: 2, name: 'Sarah Chen', lastMessage: 'Code review done ✓', time: '09:15', unread: 0, avatar: 'SC', verified: true },
+    { id: 3, name: 'Project Alpha', lastMessage: 'Meeting at 3pm', time: 'Yesterday', unread: 5, avatar: 'PA', verified: false },
+    { id: 4, name: 'John Doe', lastMessage: 'Thanks for the help!', time: 'Yesterday', unread: 0, avatar: 'JD', verified: false },
+    { id: 5, name: 'Bug Hunters', lastMessage: 'Found critical issue', time: 'Friday', unread: 1, avatar: 'BH', verified: true },
   ];
 
   const messages = [
@@ -42,6 +42,18 @@ export default function BlackBoxChat() {
     { id: 4, sender: 'You', content: 'All good, thanks! Should be done by EOD', time: '09:10', isMine: true },
     { id: 5, sender: 'Sarah Chen', content: 'Perfect! Let me know if you need anything', time: '09:15', isMine: false },
   ];
+
+  const VerifiedBadge = ({ size = 16 }) => (
+    <div style={{
+      ...styles.verifiedBadge,
+      width: size,
+      height: size,
+      minWidth: size,
+      minHeight: size,
+    }}>
+      <Check size={size * 0.65} color="#fff" strokeWidth={3} />
+    </div>
+  );
 
   const handleSendMessage = () => {
     if (message.trim()) {
@@ -103,7 +115,10 @@ export default function BlackBoxChat() {
               </div>
               <div style={styles.chatInfo}>
                 <div style={styles.chatHeader}>
-                  <span style={styles.chatName}>{chat.name}</span>
+                  <div style={styles.chatNameContainer}>
+                    <span style={styles.chatName}>{chat.name}</span>
+                    {chat.verified && <VerifiedBadge size={16} />}
+                  </div>
                   <span style={styles.chatTime}>{chat.time}</span>
                 </div>
                 <div style={styles.chatFooter}>
@@ -171,7 +186,10 @@ export default function BlackBoxChat() {
               {chats[selectedChat].avatar}
             </div>
             <div>
-              <div style={styles.activeChatName}>{chats[selectedChat].name}</div>
+              <div style={styles.activeChatNameContainer}>
+                <div style={styles.activeChatName}>{chats[selectedChat].name}</div>
+                {chats[selectedChat].verified && <VerifiedBadge size={18} />}
+              </div>
               <div style={{...styles.onlineStatus, color: primaryColor}}>online</div>
             </div>
           </div>
@@ -353,11 +371,26 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     justifyContent: 'space-between',
     marginBottom: '5px',
+    alignItems: 'center',
+  },
+  chatNameContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '5px',
+    minWidth: 0,
   },
   chatName: {
     color: '#fff',
     fontWeight: '600',
     fontSize: '15px',
+  },
+  verifiedBadge: {
+    background: '#1DA1F2',
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
   },
   chatTime: {
     color: '#666',
@@ -414,6 +447,12 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     alignItems: 'center',
     flexShrink: 0,
+  },
+  activeChatNameContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+    minWidth: 0,
   },
   activeChatName: {
     color: '#fff',
