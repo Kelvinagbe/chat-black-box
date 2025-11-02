@@ -1,6 +1,4 @@
-'use client' 
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, CSSProperties } from 'react';
 
 export default function BlackBoxLanding() {
   const [displayText, setDisplayText] = useState('');
@@ -112,7 +110,7 @@ export default function BlackBoxLanding() {
   );
 }
 
-const styles = {
+const styles: { [key: string]: CSSProperties } = {
   body: {
     margin: 0,
     height: '100vh',
