@@ -93,14 +93,16 @@ export default function BlackBoxLanding() {
           style={styles.enterBtn}
           onClick={handleEnter}
           onMouseEnter={(e) => {
-            e.target.style.transform = 'translateX(-50%) scale(1.05)';
-            e.target.style.background = 'rgba(0, 255, 127, 0.1)';
-            e.target.style.color = '#00ffcc';
+            const target = e.target as HTMLButtonElement;
+            target.style.transform = 'translateX(-50%) scale(1.05)';
+            target.style.background = 'rgba(0, 255, 127, 0.1)';
+            target.style.color = '#00ffcc';
           }}
           onMouseLeave={(e) => {
-            e.target.style.transform = 'translateX(-50%)';
-            e.target.style.background = 'transparent';
-            e.target.style.color = '#00ff7f';
+            const target = e.target as HTMLButtonElement;
+            target.style.transform = 'translateX(-50%)';
+            target.style.background = 'transparent';
+            target.style.color = '#00ff7f';
           }}
         >
           Join blackBox
