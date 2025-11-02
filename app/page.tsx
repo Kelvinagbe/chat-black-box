@@ -1,61 +1,8 @@
 'use client' 
 
-import React, { useState, useEffect, CSSProperties } from 'react';
+import React, { CSSProperties } from 'react';
 
 export default function BlackBoxLanding() {
-  const [displayText, setDisplayText] = useState('');
-  const [showButton, setShowButton] = useState(false);
-  const [isTypingComplete, setIsTypingComplete] = useState(false);
-
-  useEffect(() => {
-    const textParts = [
-      'Shadows move in code...\nEnter BlackBox — where ',
-      '<span style="color:red;">secrets</span>',
-      ' become power...\n built by devs for devs'
-    ];
-
-    let partIndex = 0;
-    const speed = 80;
-
-    const typeEffect = () => {
-      if (partIndex < textParts.length) {
-        const part = textParts[partIndex];
-
-        if (/<.*?>/.test(part)) {
-          // If part contains HTML, add it immediately
-          setDisplayText(prev => prev + part);
-          partIndex++;
-          setTimeout(typeEffect, speed);
-        } else {
-          // Type character by character
-          let charIndex = 0;
-          const typeChar = () => {
-            if (charIndex < part.length) {
-              setDisplayText(prev => prev + part.charAt(charIndex));
-              charIndex++;
-              setTimeout(typeChar, speed);
-            } else {
-              partIndex++;
-              setTimeout(typeEffect, speed);
-            }
-          };
-          typeChar();
-        }
-      } else {
-        setIsTypingComplete(true);
-        setShowButton(true);
-      }
-    };
-
-    const timer = setTimeout(typeEffect, 1000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  const handleEnter = () => {
-    // Navigate to homepage - in a real app, use React Router
-    window.location.href = "homepage.html";
-  };
-
   return (
     <div style={styles.body}>
       <div style={styles.backgroundGrid}></div>
@@ -78,37 +25,6 @@ export default function BlackBoxLanding() {
         <span style={styles.box}>Box</span>
       </h1>
 
-      {/* Typewriter Text */}
-      <p 
-        style={{
-          ...styles.introText,
-          borderRight: isTypingComplete ? 'none' : '3px solid #00ff7f'
-        }}
-        dangerouslySetInnerHTML={{ __html: displayText }}
-      />
-
-      {/* Enter Button */}
-      {showButton && (
-        <button 
-          style={styles.enterBtn}
-          onClick={handleEnter}
-          onMouseEnter={(e) => {
-            const target = e.target as HTMLButtonElement;
-            target.style.transform = 'translateX(-50%) scale(1.05)';
-            target.style.background = 'rgba(0, 255, 127, 0.1)';
-            target.style.color = '#00ffcc';
-          }}
-          onMouseLeave={(e) => {
-            const target = e.target as HTMLButtonElement;
-            target.style.transform = 'translateX(-50%)';
-            target.style.background = 'transparent';
-            target.style.color = '#00ff7f';
-          }}
-        >
-          Join blackBox
-        </button>
-      )}
-
       <style>{keyframes}</style>
     </div>
   );
@@ -117,6 +33,7 @@ export default function BlackBoxLanding() {
 const styles: { [key: string]: CSSProperties } = {
   body: {
     margin: 0,
+    minHeight: '100vh',
     height: '100vh',
     background: 'radial-gradient(black, #050505)',
     overflow: 'hidden',
@@ -137,9 +54,9 @@ const styles: { [key: string]: CSSProperties } = {
   },
   cube: {
     position: 'absolute',
-    top: 'calc(50% - 200px)',
-    left: '50%',
-    transform: 'translateX(-50%)',
+    top: '20%',
+    left: '39%',
+    transform: 'translate(-50%, -50%)',
     width: '100px',
     height: '100px',
     transformStyle: 'preserve-3d',
@@ -180,11 +97,14 @@ const styles: { [key: string]: CSSProperties } = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    fontSize: '60px',
+    fontSize: 'clamp(32px, 8vw, 60px)',
     fontWeight: 900,
     letterSpacing: '3px',
     textTransform: 'uppercase',
-    margin: 0
+    margin: 0,
+    padding: '0 20px',
+    textAlign: 'center',
+    whiteSpace: 'nowrap'
   },
   black: {
     color: '#b1b2be',
@@ -193,36 +113,6 @@ const styles: { [key: string]: CSSProperties } = {
   box: {
     color: '#00ff7f',
     textShadow: '1px 1px 2px #007a3d, 2px 2px 4px #006633, 3px 3px 6px rgba(0, 0, 0, 0.6)'
-  },
-  introText: {
-    position: 'absolute',
-    top: '65%',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    fontSize: '18px',
-    color: '#bfbfbf',
-    fontFamily: "'Orbitron', sans-serif",
-    letterSpacing: '1px',
-    textAlign: 'center',
-    width: '400px',
-    whiteSpace: 'pre-line',
-    animation: 'blinkCursor 0.7s steps(1) infinite'
-  },
-  enterBtn: {
-    position: 'absolute',
-    top: '78%',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    padding: '12px 28px',
-    fontSize: '18px',
-    fontWeight: 'bold',
-    color: '#00ff7f',
-    background: 'transparent',
-    border: '2px solid #00ff7f',
-    borderRadius: '12px',
-    cursor: 'pointer',
-    transition: 'transform 0.3s, background 0.3s, color 0.3s',
-    fontFamily: "'Orbitron', sans-serif"
   }
 };
 
@@ -248,7 +138,15 @@ const keyframes = `
     }
   }
 
-  @keyframes blinkCursor {
-    50% { border-color: transparent; }
+  @media (max-width: 768px) {
+    body {
+      perspective: 600px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    body {
+      perspective: 500px;
+    }
   }
 `;
