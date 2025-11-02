@@ -1,152 +1,475 @@
 'use client' 
 
-import React, { CSSProperties } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Send, Search, MoreVertical, Paperclip, Smile, Menu, X } from 'lucide-react';
 
-export default function BlackBoxLanding() {
+export default function BlackBoxChat() {
+  const [selectedChat, setSelectedChat] = useState(0);
+  const [message, setMessage] = useState('');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      setSidebarOpen(!mobile);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+  
+  const chats = [
+    { id: 1, name: 'Dev Team', lastMessage: 'Push to production?', time: '10:30', unread: 2, avatar: 'DT' },
+    { id: 2, name: 'Sarah Chen', lastMessage: 'Code review done ✓', time: '09:15', unread: 0, avatar: 'SC' },
+    { id: 3, name: 'Project Alpha', lastMessage: 'Meeting at 3pm', time: 'Yesterday', unread: 5, avatar: 'PA' },
+    { id: 4, name: 'John Doe', lastMessage: 'Thanks for the help!', time: 'Yesterday', unread: 0, avatar: 'JD' },
+    { id: 5, name: 'Bug Hunters', lastMessage: 'Found critical issue', time: 'Friday', unread: 1, avatar: 'BH' },
+  ];
+
+  const messages = [
+    { id: 1, sender: 'Sarah Chen', content: 'Hey team! How are things going?', time: '09:00', isMine: false },
+    { id: 2, sender: 'You', content: 'Working on the new feature', time: '09:05', isMine: true },
+    { id: 3, sender: 'Sarah Chen', content: 'Awesome! Need any help?', time: '09:06', isMine: false },
+    { id: 4, sender: 'You', content: 'All good, thanks! Should be done by EOD', time: '09:10', isMine: true },
+    { id: 5, sender: 'Sarah Chen', content: 'Perfect! Let me know if you need anything', time: '09:15', isMine: false },
+  ];
+
+  const handleSendMessage = () => {
+    if (message.trim()) {
+      setMessage('');
+    }
+  };
+
+  const handleChatSelect = (index: number) => {
+    setSelectedChat(index);
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
+  };
+
   return (
-    <div style={styles.body}>
-      <div style={styles.backgroundGrid}></div>
+    <div style={styles.container}>
+      {/* Overlay for mobile */}
+      {isMobile && sidebarOpen && (
+        <div 
+          style={styles.overlay}
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
 
-      {/* Rotating 3D Box */}
-      <div style={styles.cube}>
-        <div style={{...styles.face, ...styles.front}}></div>
-        <div style={{...styles.face, ...styles.back}}></div>
-        <div style={{...styles.face, ...styles.right}}></div>
-        <div style={{...styles.face, ...styles.left}}></div>
-        <div style={{...styles.face, ...styles.top}}></div>
-        <div style={{...styles.face, ...styles.bottom}}></div>
+      {/* Sidebar */}
+      <div style={{
+        ...styles.sidebar,
+        ...(isMobile ? styles.sidebarMobile : {}),
+        transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
+      }}>
+        {/* Sidebar Header */}
+        <div style={styles.sidebarHeader}>
+          <h2 style={styles.logo}>
+            <span style={styles.logoBlack}>Black</span>
+            <span style={styles.logoBox}>Box</span>
+          </h2>
+          <div style={styles.headerIcons}>
+            <Search size={20} color="#00ff7f" style={styles.icon} />
+            <MoreVertical size={20} color="#00ff7f" style={styles.icon} />
+          </div>
+        </div>
+
+        {/* Search Bar */}
+        <div style={styles.searchContainer}>
+          <Search size={16} color="#666" style={styles.searchIcon} />
+          <input
+            type="text"
+            placeholder="Search chats..."
+            style={styles.searchInput}
+          />
+        </div>
+
+        {/* Chat List */}
+        <div style={styles.chatList}>
+          {chats.map((chat, index) => (
+            <div
+              key={chat.id}
+              onClick={() => handleChatSelect(index)}
+              style={{
+                ...styles.chatItem,
+                background: selectedChat === index ? 'rgba(0, 255, 127, 0.1)' : 'transparent',
+                borderLeft: selectedChat === index ? '3px solid #00ff7f' : '3px solid transparent',
+              }}
+            >
+              <div style={styles.avatar}>{chat.avatar}</div>
+              <div style={styles.chatInfo}>
+                <div style={styles.chatHeader}>
+                  <span style={styles.chatName}>{chat.name}</span>
+                  <span style={styles.chatTime}>{chat.time}</span>
+                </div>
+                <div style={styles.chatFooter}>
+                  <span style={styles.lastMessage}>{chat.lastMessage}</span>
+                  {chat.unread > 0 && (
+                    <span style={styles.unreadBadge}>{chat.unread}</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
-      <div style={styles.projection}></div>
+      {/* Main Chat Area */}
+      <div style={styles.mainArea}>
+        {/* Chat Header */}
+        <div style={styles.chatHeaderArea}>
+          <div style={styles.chatHeaderLeft}>
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              style={styles.menuButton}
+            >
+              {sidebarOpen && !isMobile ? <X size={24} /> : <Menu size={24} />}
+            </button>
+            <div style={styles.avatar}>{chats[selectedChat].avatar}</div>
+            <div>
+              <div style={styles.activeChatName}>{chats[selectedChat].name}</div>
+              <div style={styles.onlineStatus}>online</div>
+            </div>
+          </div>
+          <div style={styles.headerIcons}>
+            <Search size={20} color="#00ff7f" style={styles.icon} />
+            <MoreVertical size={20} color="#00ff7f" style={styles.icon} />
+          </div>
+        </div>
 
-      {/* Title */}
-      <h1 style={styles.title}>
-        <span style={styles.black}>Black</span>
-        <span style={styles.box}>Box</span>
-      </h1>
+        {/* Messages Area */}
+        <div style={styles.messagesArea}>
+          {messages.map((msg) => (
+            <div
+              key={msg.id}
+              style={{
+                ...styles.messageWrapper,
+                justifyContent: msg.isMine ? 'flex-end' : 'flex-start',
+              }}
+            >
+              <div
+                style={{
+                  ...styles.messageBubble,
+                  background: msg.isMine ? '#00ff7f' : '#1a1a1a',
+                  color: msg.isMine ? '#000' : '#fff',
+                  borderRadius: msg.isMine ? '12px 12px 0 12px' : '12px 12px 12px 0',
+                }}
+              >
+                {!msg.isMine && (
+                  <div style={styles.senderName}>{msg.sender}</div>
+                )}
+                <div>{msg.content}</div>
+                <div style={{
+                  ...styles.messageTime,
+                  color: msg.isMine ? '#000' : '#666',
+                }}>{msg.time}</div>
+              </div>
+            </div>
+          ))}
+        </div>
 
-      <style>{keyframes}</style>
+        {/* Input Area */}
+        <div style={styles.inputArea}>
+          <button style={styles.attachButton}>
+            <Paperclip size={20} color="#00ff7f" />
+          </button>
+          <input
+            type="text"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+            placeholder="Type a message..."
+            style={styles.messageInput}
+          />
+          <button style={styles.emojiButton}>
+            <Smile size={20} color="#00ff7f" />
+          </button>
+          <button
+            onClick={handleSendMessage}
+            style={styles.sendButton}
+          >
+            <Send size={20} color="#000" />
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
 
-const styles: { [key: string]: CSSProperties } = {
-  body: {
-    margin: 0,
-    minHeight: '100vh',
+const styles = {
+  container: {
+    display: 'flex',
     height: '100vh',
-    background: 'radial-gradient(black, #050505)',
+    background: '#000',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
     overflow: 'hidden',
+    position: 'relative' as 'relative',
+  },
+  overlay: {
+    position: 'fixed' as 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: 'rgba(0, 0, 0, 0.7)',
+    zIndex: 9,
+  },
+  sidebar: {
+    width: '350px',
+    maxWidth: '100vw',
+    background: '#0a0a0a',
+    borderRight: '1px solid #1a1a1a',
+    display: 'flex',
+    flexDirection: 'column' as 'column',
+    transition: 'transform 0.3s ease',
+    zIndex: 10,
+  },
+  sidebarMobile: {
+    position: 'fixed' as 'fixed',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    width: '85vw',
+    maxWidth: '350px',
+  },
+  sidebarHeader: {
+    padding: '15px 20px',
+    background: '#0f0f0f',
+    borderBottom: '1px solid #1a1a1a',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  logo: {
+    fontSize: '20px',
+    fontWeight: 'bold',
+    margin: 0,
+  },
+  logoBlack: {
+    color: '#b1b2be',
+  },
+  logoBox: {
+    color: '#00ff7f',
+  },
+  headerIcons: {
+    display: 'flex',
+    gap: '15px',
+  },
+  icon: {
+    cursor: 'pointer',
+    transition: 'transform 0.2s',
+  },
+  searchContainer: {
+    padding: '15px',
+    background: '#0f0f0f',
+    borderBottom: '1px solid #1a1a1a',
+    position: 'relative' as 'relative',
+  },
+  searchIcon: {
+    position: 'absolute' as 'absolute',
+    left: '30px',
+    top: '50%',
+    transform: 'translateY(-50%)',
+  },
+  searchInput: {
+    width: '100%',
+    padding: '10px 10px 10px 40px',
+    background: '#1a1a1a',
+    border: '1px solid #2a2a2a',
+    borderRadius: '8px',
+    color: '#fff',
+    fontSize: '14px',
+    outline: 'none',
+  },
+  chatList: {
+    flex: 1,
+    overflowY: 'auto' as 'auto',
+  },
+  chatItem: {
+    display: 'flex',
+    padding: '15px',
+    cursor: 'pointer',
+    transition: 'all 0.2s',
+    gap: '12px',
+  },
+  avatar: {
+    width: '45px',
+    height: '45px',
+    borderRadius: '50%',
+    background: 'linear-gradient(135deg, #00ff7f, #00cc66)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    perspective: '800px',
-    position: 'relative'
+    color: '#000',
+    fontWeight: 'bold',
+    fontSize: '16px',
+    flexShrink: 0,
   },
-  backgroundGrid: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    backgroundImage: 'linear-gradient(white 1px, transparent 1px), linear-gradient(90deg, white 1px, transparent 1px)',
-    backgroundSize: '80px 80px',
-    opacity: 0.05,
-    zIndex: 0
+  chatInfo: {
+    flex: 1,
+    minWidth: 0,
   },
-  cube: {
-    position: 'absolute',
-    top: '20%',
-    left: '39%',
-    transform: 'translate(-50%, -50%)',
-    width: '100px',
-    height: '100px',
-    transformStyle: 'preserve-3d',
-    animation: 'cube-rotate 10s infinite linear',
-    zIndex: 2
+  chatHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    marginBottom: '5px',
   },
-  face: {
-    position: 'absolute',
-    width: '100px',
-    height: '100px',
-    background: 'black',
-    border: '2px solid white',
-    boxShadow: '0 0 20px white',
-    color: 'white'
+  chatName: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: '15px',
   },
-  front: { transform: 'translateZ(50px)' },
-  back: { transform: 'rotateY(180deg) translateZ(50px)' },
-  right: { transform: 'rotateY(90deg) translateZ(50px)' },
-  left: { transform: 'rotateY(-90deg) translateZ(50px)' },
-  top: { transform: 'rotateX(90deg) translateZ(50px)' },
-  bottom: { transform: 'rotateX(-90deg) translateZ(50px)' },
-  projection: {
-    position: 'absolute',
-    top: '55%',
-    left: '50%',
-    width: '220px',
-    height: '220px',
-    background: 'radial-gradient(circle, rgba(255, 255, 255, 0.5) 0%, transparent 80%)',
-    transform: 'translate(-50%, -50%) rotateX(90deg)',
-    filter: 'blur(50px)',
-    opacity: 0.6,
-    animation: 'beamPulse 2.5s infinite ease-in-out',
-    zIndex: 0
+  chatTime: {
+    color: '#666',
+    fontSize: '12px',
   },
-  title: {
-    fontFamily: "'Orbitron', sans-serif",
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    fontSize: 'clamp(32px, 8vw, 60px)',
-    fontWeight: 900,
-    letterSpacing: '3px',
-    textTransform: 'uppercase',
-    margin: 0,
-    padding: '0 20px',
-    textAlign: 'center',
-    whiteSpace: 'nowrap'
+  chatFooter: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
-  black: {
-    color: '#b1b2be',
-    textShadow: '1px 1px 2px #333, 2px 2px 4px #222, 3px 3px 6px rgba(0, 0, 0, 0.6)'
+  lastMessage: {
+    color: '#999',
+    fontSize: '14px',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap' as 'nowrap',
   },
-  box: {
+  unreadBadge: {
+    background: '#00ff7f',
+    color: '#000',
+    borderRadius: '12px',
+    padding: '2px 8px',
+    fontSize: '11px',
+    fontWeight: 'bold',
+    minWidth: '20px',
+    textAlign: 'center' as 'center',
+  },
+  mainArea: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column' as 'column',
+    background: '#050505',
+    minWidth: 0,
+  },
+  chatHeaderArea: {
+    padding: '15px 20px',
+    background: '#0f0f0f',
+    borderBottom: '1px solid #1a1a1a',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  chatHeaderLeft: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '15px',
+    minWidth: 0,
+    flex: 1,
+  },
+  menuButton: {
+    background: 'transparent',
+    border: 'none',
     color: '#00ff7f',
-    textShadow: '1px 1px 2px #007a3d, 2px 2px 4px #006633, 3px 3px 6px rgba(0, 0, 0, 0.6)'
-  }
+    cursor: 'pointer',
+    padding: '5px',
+    display: 'flex',
+    alignItems: 'center',
+    flexShrink: 0,
+  },
+  activeChatName: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: '16px',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap' as 'nowrap',
+  },
+  onlineStatus: {
+    color: '#00ff7f',
+    fontSize: '12px',
+  },
+  messagesArea: {
+    flex: 1,
+    overflowY: 'auto' as 'auto',
+    padding: '20px',
+    display: 'flex',
+    flexDirection: 'column' as 'column',
+    gap: '10px',
+  },
+  messageWrapper: {
+    display: 'flex',
+    width: '100%',
+  },
+  messageBubble: {
+    maxWidth: '70%',
+    padding: '10px 15px',
+    fontSize: '14px',
+    wordWrap: 'break-word' as 'break-word',
+  },
+  senderName: {
+    fontSize: '12px',
+    fontWeight: '600',
+    marginBottom: '5px',
+    color: '#00ff7f',
+  },
+  messageTime: {
+    fontSize: '10px',
+    marginTop: '5px',
+    textAlign: 'right' as 'right',
+  },
+  inputArea: {
+    padding: '15px 20px',
+    background: '#0f0f0f',
+    borderTop: '1px solid #1a1a1a',
+    display: 'flex',
+    gap: '10px',
+    alignItems: 'center',
+  },
+  attachButton: {
+    background: 'transparent',
+    border: 'none',
+    cursor: 'pointer',
+    padding: '8px',
+    display: 'flex',
+    alignItems: 'center',
+    flexShrink: 0,
+  },
+  messageInput: {
+    flex: 1,
+    padding: '12px 15px',
+    background: '#1a1a1a',
+    border: '1px solid #2a2a2a',
+    borderRadius: '25px',
+    color: '#fff',
+    fontSize: '14px',
+    outline: 'none',
+    minWidth: 0,
+  },
+  emojiButton: {
+    background: 'transparent',
+    border: 'none',
+    cursor: 'pointer',
+    padding: '8px',
+    display: 'flex',
+    alignItems: 'center',
+    flexShrink: 0,
+  },
+  sendButton: {
+    background: '#00ff7f',
+    border: 'none',
+    borderRadius: '50%',
+    width: '40px',
+    height: '40px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    transition: 'transform 0.2s, box-shadow 0.2s',
+    flexShrink: 0,
+  },
 };
-
-const keyframes = `
-  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap');
-
-  @keyframes cube-rotate {
-    0% { transform: rotateX(0) rotateY(0); }
-    25% { transform: rotateX(90deg) rotateY(180deg); }
-    50% { transform: rotateX(180deg) rotateY(270deg); }
-    75% { transform: rotateX(270deg) rotateY(90deg); }
-    100% { transform: rotateX(360deg) rotateY(360deg); }
-  }
-
-  @keyframes beamPulse {
-    0%, 100% { 
-      opacity: 0.4; 
-      transform: translate(-50%, -50%) rotateX(90deg) scale(1); 
-    }
-    50% { 
-      opacity: 0.8; 
-      transform: translate(-50%, -50%) rotateX(90deg) scale(1.2); 
-    }
-  }
-
-  @media (max-width: 768px) {
-    body {
-      perspective: 600px;
-    }
-  }
-
-  @media (max-width: 480px) {
-    body {
-      perspective: 500px;
-    }
-  }
-`;
