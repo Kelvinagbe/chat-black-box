@@ -1,13 +1,14 @@
 'use client'
 
 import React, { useState, useEffect } from 'react';
-import { Send, Search, MoreVertical, Paperclip, Smile, Menu, X } from 'lucide-react';
+import { Send, Search, MoreVertical, Paperclip, Smile, Menu, X, MessageSquare, Users, User } from 'lucide-react';
 
 export default function BlackBoxChat() {
   const [selectedChat, setSelectedChat] = useState(0);
   const [message, setMessage] = useState('');
-  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [showChatView, setShowChatView] = useState(false);
+  const [activeTab, setActiveTab] = useState('chats');
 
   const primaryColor = '#00ff7f';
   const accentColor = '#fff';
@@ -16,7 +17,9 @@ export default function BlackBoxChat() {
     const checkMobile = () => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
-      setSidebarOpen(!mobile);
+      if (!mobile) {
+        setShowChatView(false);
+      }
     };
 
     checkMobile();
@@ -49,23 +52,20 @@ export default function BlackBoxChat() {
   const handleChatSelect = (index: number) => {
     setSelectedChat(index);
     if (isMobile) {
-      setSidebarOpen(false);
+      setShowChatView(true);
     }
+  };
+
+  const handleBackToList = () => {
+    setShowChatView(false);
   };
 
   return (
     <div style={styles.container}>
-      {isMobile && sidebarOpen && (
-        <div 
-          style={styles.overlay}
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
       <div style={{
         ...styles.sidebar,
         ...(isMobile ? styles.sidebarMobile : {}),
-        transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
+        display: isMobile && showChatView ? 'none' : 'flex',
       }}>
         <div style={styles.sidebarHeader}>
           <h2 style={styles.logo}>
@@ -116,17 +116,57 @@ export default function BlackBoxChat() {
             </div>
           ))}
         </div>
+
+        {isMobile && (
+          <div style={styles.bottomNav}>
+            <button
+              onClick={() => setActiveTab('chats')}
+              style={{
+                ...styles.navButton,
+                color: activeTab === 'chats' ? primaryColor : '#666',
+              }}
+            >
+              <MessageSquare size={24} />
+              <span style={styles.navLabel}>Chats</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('requests')}
+              style={{
+                ...styles.navButton,
+                color: activeTab === 'requests' ? primaryColor : '#666',
+              }}
+            >
+              <Users size={24} />
+              <span style={styles.navLabel}>Requests</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('profile')}
+              style={{
+                ...styles.navButton,
+                color: activeTab === 'profile' ? primaryColor : '#666',
+              }}
+            >
+              <User size={24} />
+              <span style={styles.navLabel}>Profile</span>
+            </button>
+          </div>
+        )}
       </div>
 
       <div style={styles.mainArea}>
-        <div style={styles.chatHeaderArea}>
+        <div style={{
+          ...styles.chatHeaderArea,
+          display: isMobile && !showChatView ? 'none' : 'flex',
+        }}>
           <div style={styles.chatHeaderLeft}>
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              style={{...styles.menuButton, color: accentColor}}
-            >
-              {sidebarOpen && !isMobile ? <X size={24} /> : <Menu size={24} />}
-            </button>
+            {isMobile && (
+              <button
+                onClick={handleBackToList}
+                style={{...styles.menuButton, color: accentColor}}
+              >
+                <X size={24} />
+              </button>
+            )}
             <div style={{...styles.avatar, background: `linear-gradient(135deg, ${accentColor}, #cccccc)`}}>
               {chats[selectedChat].avatar}
             </div>
@@ -141,7 +181,10 @@ export default function BlackBoxChat() {
           </div>
         </div>
 
-        <div style={styles.messagesArea}>
+        <div style={{
+          ...styles.messagesArea,
+          display: isMobile && !showChatView ? 'none' : 'flex',
+        }}>
           {messages.map((msg) => (
             <div
               key={msg.id}
@@ -164,14 +207,17 @@ export default function BlackBoxChat() {
                 <div>{msg.content}</div>
                 <div style={{
                   ...styles.messageTime,
-                  color: msg.isMine ? '#000' : '#666',
+                  color: msg.isMine ? '#666' : '#666',
                 }}>{msg.time}</div>
               </div>
             </div>
           ))}
         </div>
 
-        <div style={styles.inputArea}>
+        <div style={{
+          ...styles.inputArea,
+          display: isMobile && !showChatView ? 'none' : 'flex',
+        }}>
           <button style={styles.attachButton}>
             <Paperclip size={20} color={accentColor} />
           </button>
@@ -223,16 +269,12 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderRight: '1px solid #1a1a1a',
     display: 'flex',
     flexDirection: 'column',
-    transition: 'transform 0.3s ease',
     zIndex: 10,
   },
   sidebarMobile: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    bottom: 0,
-    width: '85vw',
-    maxWidth: '350px',
+    width: '100vw',
+    maxWidth: '100vw',
+    position: 'relative',
   },
   sidebarHeader: {
     padding: '15px 20px',
@@ -460,5 +502,28 @@ const styles: { [key: string]: React.CSSProperties } = {
     cursor: 'pointer',
     transition: 'transform 0.2s, box-shadow 0.2s',
     flexShrink: 0,
+  },
+  bottomNav: {
+    display: 'flex',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    padding: '10px 0',
+    background: '#0f0f0f',
+    borderTop: '1px solid #1a1a1a',
+  },
+  navButton: {
+    background: 'transparent',
+    border: 'none',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '5px',
+    cursor: 'pointer',
+    padding: '8px 20px',
+    transition: 'color 0.2s',
+  },
+  navLabel: {
+    fontSize: '11px',
+    fontWeight: '500',
   },
 };
