@@ -21,11 +21,10 @@ export default function BlackBoxLanding() {
 
       {/* Title */}
       <h1 style={styles.title}>
-        <span style={styles.black}>Black</span>
+        <span style={styles.black}>Chat</span>
         <span style={styles.box}>Box</span>
       </h1>
       
-      <span style={styles.black}>Black</span>
       
 
       <style>{keyframes}</style>
