@@ -7,7 +7,7 @@ import ChatSidebar from '@/components/ChatSidebar';
 import ChatHeader from '@/components/ChatHeader';
 import MessageBubble from '@/components/MessageBubble';
 import MessageInput from '@/components/MessageInput';
-import SplashScreen from '@/SplashScreen';
+import SplashScreen from '@/components/SplashScreen';
 
 export default function BlackBoxChat() {
   const router = useRouter();
