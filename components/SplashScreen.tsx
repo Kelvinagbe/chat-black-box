@@ -24,9 +24,9 @@ export default function BlackBoxLanding() {
         <span style={styles.black}>Black</span>
         <span style={styles.box}>Box</span>
       </h1>
-      </h2>
+      
       <span style={styles.black}>Black</span
-      </h2>
+      
 
       <style>{keyframes}</style>
     </div>
