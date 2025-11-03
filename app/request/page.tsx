@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { UserPlus, Clock } from 'lucide-react';
-import BottomNav from '../components/BottomNav';
+import BottomNav from '@/components/BottomNav';
 
 export default function RequestsPage() {
   const [isMobile, setIsMobile] = useState(false);
