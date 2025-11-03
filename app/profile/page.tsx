@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Settings, Bell, Lock, HelpCircle, LogOut } from 'lucide-react';
-import BottomNav from '../components/BottomNav';
+import BottomNav from '@/components/BottomNav';
 
 export default function ProfilePage() {
   const [isMobile, setIsMobile] = useState(false);
