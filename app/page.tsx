@@ -1,5 +1,3 @@
-
-
 // ============= app/page.tsx (Main Component) =============
 'use client'
 
@@ -9,6 +7,7 @@ import ChatSidebar from '@/components/ChatSidebar';
 import ChatHeader from '@/components/ChatHeader';
 import MessageBubble from '@/components/MessageBubble';
 import MessageInput from '@/components/MessageInput';
+import SplashScreen from '@/SplashScreen';
 
 export default function BlackBoxChat() {
   const router = useRouter();
@@ -17,6 +16,7 @@ export default function BlackBoxChat() {
   const [isMobile, setIsMobile] = useState(false);
   const [showChatView, setShowChatView] = useState(false);
   const [activeTab, setActiveTab] = useState('chats');
+  const [showSplash, setShowSplash] = useState(true);
 
   const primaryColor = '#00ff7f';
   const accentColor = '#fff';
@@ -33,6 +33,15 @@ export default function BlackBoxChat() {
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    // Hide splash screen after 3 seconds
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
   }, []);
 
   const chats = [
@@ -129,26 +138,45 @@ export default function BlackBoxChat() {
   };
 
   return (
-    <div style={{
-      display: 'flex',
-      height: '100vh',
-      background: '#000',
-      fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-      overflow: 'hidden',
-      position: 'relative',
-    }}>
-      <ChatSidebar
-        chats={chats}
-        selectedChat={selectedChat}
-        onChatSelect={handleChatSelect}
-        isMobile={isMobile}
-        showChatView={showChatView}
-        activeTab={activeTab}
-        onTabChange={handleTabChange}
-        primaryColor={primaryColor}
-        accentColor={accentColor}
-      />
-      {renderMainContent()}
-    </div>
+    <>
+      {/* Splash Screen Overlay */}
+      {showSplash && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          zIndex: 9999,
+        }}>
+          <SplashScreen />
+        </div>
+      )}
+
+      {/* Main Chat Application */}
+      <div style={{
+        display: 'flex',
+        height: '100vh',
+        background: '#000',
+        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+        overflow: 'hidden',
+        position: 'relative',
+        opacity: showSplash ? 0 : 1,
+        transition: 'opacity 0.5s ease-in',
+      }}>
+        <ChatSidebar
+          chats={chats}
+          selectedChat={selectedChat}
+          onChatSelect={handleChatSelect}
+          isMobile={isMobile}
+          showChatView={showChatView}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          primaryColor={primaryColor}
+          accentColor={accentColor}
+        />
+        {renderMainContent()}
+      </div>
+    </>
   );
 }
