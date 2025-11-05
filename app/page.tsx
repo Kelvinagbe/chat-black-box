@@ -8,7 +8,6 @@ import ChatHeader from '@/components/ChatHeader';
 import MessageBubble from '@/components/MessageBubble';
 import MessageInput from '@/components/MessageInput';
 import SplashScreen from '@/components/SplashScreen';
-import NewChatButton from '@/components/NewChatButton';
 
 export default function BlackBoxChat() {
   const router = useRouter();
@@ -87,12 +86,6 @@ export default function BlackBoxChat() {
     } else {
       setShowChatView(false);
     }
-  };
-
-  const handleAddNewChat = (user: any) => {
-    // Handle new chat selection
-    console.log('Selected user:', user);
-    // You can implement logic to add user to chat list here
   };
 
   const renderMainContent = () => {
@@ -183,14 +176,6 @@ export default function BlackBoxChat() {
           accentColor={accentColor}
         />
         {renderMainContent()}
-        
-        {/* New Chat Button */}
-        {activeTab === 'chats' && (!isMobile || !showChatView) && (
-          <NewChatButton
-            primaryColor={primaryColor}
-            onSelectUser={handleAddNewChat}
-          />
-        )}
       </div>
     </>
   );
