@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, MessageCircle, Info } from 'lucide-react';
+import { X, MessageCircle, Phone, Video, Info } from 'lucide-react';
 
 interface ProfileModalProps {
   chat: {
@@ -33,141 +33,112 @@ export default function ProfileModal({
         left: 0,
         right: 0,
         bottom: 0,
-        background: 'rgba(0, 0, 0, 0.85)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        background: '#000',
         zIndex: 1000,
-        animation: 'fadeIn 0.2s ease-in-out',
       }}
       onClick={onClose}
     >
-      <style>
-        {`
-          @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-          }
-          @keyframes slideUp {
-            from { 
-              transform: translateY(20px);
-              opacity: 0;
-            }
-            to { 
-              transform: translateY(0);
-              opacity: 1;
-            }
-          }
-        `}
-      </style>
-
       <div
         style={{
-          background: '#1a1a1a',
-          width: '90%',
-          maxWidth: '400px',
-          borderRadius: '12px',
-          overflow: 'hidden',
-          animation: 'slideUp 0.3s ease-out',
-          boxShadow: '0 10px 40px rgba(0, 0, 0, 0.5)',
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          background: '#111',
         }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div style={{
           display: 'flex',
-          justifyContent: 'space-between',
           alignItems: 'center',
-          padding: '15px 20px',
-          borderBottom: '1px solid #333',
+          padding: '12px 16px',
+          background: '#1f1f1f',
         }}>
-          <h3 style={{
-            color: '#fff',
-            margin: 0,
-            fontSize: '18px',
-            fontWeight: '600',
-          }}>Contact Info</h3>
           <button
             onClick={onClose}
             style={{
               background: 'transparent',
               border: 'none',
-              color: '#999',
+              color: '#8696a0',
               cursor: 'pointer',
-              padding: '5px',
+              padding: '8px',
               display: 'flex',
               alignItems: 'center',
-              transition: 'color 0.2s',
+              marginRight: '20px',
             }}
-            onMouseEnter={(e) => e.currentTarget.style.color = '#fff'}
-            onMouseLeave={(e) => e.currentTarget.style.color = '#999'}
           >
             <X size={24} />
           </button>
+          <h3 style={{
+            color: '#e9edef',
+            margin: 0,
+            fontSize: '19px',
+            fontWeight: '400',
+          }}>Contact info</h3>
         </div>
 
-        {/* Full-Width Profile Image Section */}
-        <div 
-          style={{
-            width: '100%',
-            aspectRatio: '1 / 1',
-            background: '#000',
-            position: 'relative',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-          }}
-          onClick={onClose}
-        >
-          {/* Profile Image */}
-          <div style={{
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            fontSize: '120px',
-            fontWeight: 'bold',
-            color: '#fff',
-          }}>
-            {chat.avatar}
+        {/* Scrollable Content */}
+        <div style={{
+          flex: 1,
+          overflowY: 'auto',
+          background: '#111',
+        }}>
+          {/* Profile Image Section */}
+          <div 
+            style={{
+              width: '100%',
+              aspectRatio: '1 / 1',
+              background: '#000',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {/* Profile Image */}
+            <div style={{
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              fontSize: '140px',
+              fontWeight: '400',
+              color: '#fff',
+            }}>
+              {chat.avatar}
+            </div>
           </div>
-          
-          {/* Bottom Overlay with Name */}
+
+          {/* Name and Phone Section */}
           <div style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, transparent 100%)',
-            padding: '60px 20px 20px',
+            background: '#111',
+            padding: '24px 30px',
+            borderBottom: '1px solid #222',
           }}>
             <h2 style={{
-              color: '#fff',
-              margin: 0,
+              color: '#e9edef',
+              margin: '0 0 4px 0',
               fontSize: '24px',
-              fontWeight: '500',
-              textShadow: '0 2px 8px rgba(0,0,0,0.4)',
+              fontWeight: '400',
             }}>{chat.name}</h2>
             {chat.phone && (
               <p style={{
-                color: '#e5e5e5',
-                margin: '4px 0 0 0',
-                fontSize: '14px',
-                textShadow: '0 1px 4px rgba(0,0,0,0.4)',
+                color: '#8696a0',
+                margin: 0,
+                fontSize: '17px',
               }}>{chat.phone}</p>
             )}
           </div>
 
-          {/* Action Icons Overlay */}
+          {/* Action Buttons */}
           <div style={{
-            position: 'absolute',
-            bottom: '20px',
-            right: '20px',
             display: 'flex',
-            gap: '12px',
+            padding: '8px 0',
+            background: '#111',
+            borderBottom: '1px solid #222',
           }}>
             <button
               onClick={(e) => {
@@ -176,73 +147,162 @@ export default function ProfileModal({
                 onClose();
               }}
               style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '20px',
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              <div style={{
                 width: '48px',
                 height: '48px',
                 borderRadius: '50%',
                 background: primaryColor,
-                border: 'none',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                cursor: 'pointer',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
-                transition: 'transform 0.2s',
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
-              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-            >
-              <MessageCircle size={22} color="#000" />
+              }}>
+                <MessageCircle size={24} color="#111" fill="#111" />
+              </div>
+              <span style={{
+                color: '#8696a0',
+                fontSize: '13px',
+              }}>Message</span>
             </button>
-            
+
             <button
-              onClick={(e) => e.stopPropagation()}
               style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '20px',
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              <div style={{
                 width: '48px',
                 height: '48px',
                 borderRadius: '50%',
-                background: 'rgba(255,255,255,0.25)',
-                backdropFilter: 'blur(10px)',
-                border: 'none',
+                background: primaryColor,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+              }}>
+                <Phone size={24} color="#111" />
+              </div>
+              <span style={{
+                color: '#8696a0',
+                fontSize: '13px',
+              }}>Audio</span>
+            </button>
+
+            <button
+              style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '20px',
+                background: 'transparent',
+                border: 'none',
                 cursor: 'pointer',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
-                transition: 'transform 0.2s',
               }}
-              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
-              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
             >
-              <Info size={22} color="#fff" />
+              <div style={{
+                width: '48px',
+                height: '48px',
+                borderRadius: '50%',
+                background: primaryColor,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                <Video size={24} color="#111" />
+              </div>
+              <span style={{
+                color: '#8696a0',
+                fontSize: '13px',
+              }}>Video</span>
             </button>
           </div>
-        </div>
 
-        {/* Info Sections */}
-        <div style={{ padding: '20px' }}>
           {/* About Section */}
           {chat.about && (
             <div style={{
-              background: '#0f0f0f',
-              padding: '15px',
-              borderRadius: '8px',
-              marginBottom: '15px',
+              background: '#111',
+              padding: '20px 30px',
+              borderBottom: '1px solid #222',
             }}>
               <p style={{
-                color: primaryColor,
-                fontSize: '12px',
+                color: '#00a884',
+                fontSize: '14px',
                 margin: '0 0 8px 0',
-                textTransform: 'uppercase',
-                fontWeight: '600',
               }}>About</p>
               <p style={{
-                color: '#fff',
+                color: '#e9edef',
                 margin: 0,
-                fontSize: '14px',
-                lineHeight: '1.5',
+                fontSize: '17px',
+                lineHeight: '22px',
               }}>{chat.about}</p>
             </div>
           )}
+
+          {/* Media, links and docs */}
+          <div style={{
+            background: '#111',
+            padding: '20px 30px',
+            borderBottom: '1px solid #222',
+            cursor: 'pointer',
+          }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}>
+              <div>
+                <p style={{
+                  color: '#e9edef',
+                  fontSize: '17px',
+                  margin: '0 0 2px 0',
+                }}>Media, links and docs</p>
+                <p style={{
+                  color: '#8696a0',
+                  fontSize: '15px',
+                  margin: 0,
+                }}>None</p>
+              </div>
+              <div style={{
+                color: '#8696a0',
+                fontSize: '20px',
+              }}>›</div>
+            </div>
+          </div>
+
+          {/* Encryption Notice */}
+          <div style={{
+            background: '#111',
+            padding: '20px 30px',
+            textAlign: 'center',
+          }}>
+            <p style={{
+              color: '#8696a0',
+              fontSize: '14px',
+              margin: 0,
+              lineHeight: '20px',
+            }}>
+              🔒 Your personal messages are end-to-end encrypted
+            </p>
+          </div>
         </div>
       </div>
     </div>
