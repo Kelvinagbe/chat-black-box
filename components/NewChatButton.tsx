@@ -40,10 +40,10 @@ export default function NewChatButton({ primaryColor, onSelectUser }: NewChatBut
         onClick={() => setIsModalOpen(true)}
         style={{
           position: 'fixed',
-          bottom: '24px',
-          right: '24px',
-          width: '56px',
-          height: '56px',
+          bottom: '90px',
+          right: '20px',
+          width: '48px',
+          height: '48px',
           borderRadius: '50%',
           background: primaryColor,
           border: 'none',
@@ -51,20 +51,20 @@ export default function NewChatButton({ primaryColor, onSelectUser }: NewChatBut
           alignItems: 'center',
           justifyContent: 'center',
           cursor: 'pointer',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
           transition: 'transform 0.2s, box-shadow 0.2s',
-          zIndex: 100,
+          zIndex: 50,
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'scale(1.1)';
-          e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.4)';
+          e.currentTarget.style.transform = 'scale(1.05)';
+          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.4)';
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.transform = 'scale(1)';
-          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
+          e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.3)';
         }}
       >
-        <Plus size={28} color="#000" strokeWidth={3} />
+        <Plus size={24} color="#000" strokeWidth={2.5} />
       </button>
 
       {/* Full Page Modal */}
