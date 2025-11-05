@@ -4,6 +4,7 @@
 import React, { useState } from 'react';
 import VerifiedBadge from './VerifiedBadge';
 import ProfileModal from './ProfileModal';
+import NewChatButton from './NewChatButton';
 
 interface Chat {
   id: number;
@@ -22,9 +23,18 @@ interface ChatListItemProps {
   isSelected: boolean;
   onSelect: () => void;
   primaryColor: string;
+  showNewChatButton?: boolean;
+  onAddNewChat?: (user: any) => void;
 }
 
-export default function ChatListItem({ chat, isSelected, onSelect, primaryColor }: ChatListItemProps) {
+export default function ChatListItem({ 
+  chat, 
+  isSelected, 
+  onSelect, 
+  primaryColor,
+  showNewChatButton = false,
+  onAddNewChat
+}: ChatListItemProps) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const handleAvatarClick = (e: React.MouseEvent) => {
@@ -134,6 +144,14 @@ export default function ChatListItem({ chat, isSelected, onSelect, primaryColor 
         primaryColor={primaryColor}
         onMessageClick={onSelect}
       />
+
+      {/* Show NewChatButton only on the last item */}
+      {showNewChatButton && onAddNewChat && (
+        <NewChatButton
+          primaryColor={primaryColor}
+          onSelectUser={onAddNewChat}
+        />
+      )}
     </>
   );
 }
