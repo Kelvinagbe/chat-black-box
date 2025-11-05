@@ -4,6 +4,7 @@
 import React from 'react';
 import { Search, MoreVertical, MessageSquare, Users, User } from 'lucide-react';
 import ChatListItem from './ChatListItem';
+import NewChatButton from './NewChatButton';
 
 interface Chat {
   id: number;
@@ -25,6 +26,7 @@ interface ChatSidebarProps {
   onTabChange: (tab: string) => void;
   primaryColor: string;
   accentColor: string;
+  onAddNewChat?: (user: any) => void;
 }
 
 export default function ChatSidebar({
@@ -37,6 +39,7 @@ export default function ChatSidebar({
   onTabChange,
   primaryColor,
   accentColor,
+  onAddNewChat,
 }: ChatSidebarProps) {
   return (
     <div style={{
@@ -105,6 +108,7 @@ export default function ChatSidebar({
       <div style={{
         flex: 1,
         overflowY: 'auto',
+        position: 'relative',
       }}>
         {chats.map((chat, index) => (
           <ChatListItem
@@ -116,6 +120,14 @@ export default function ChatSidebar({
           />
         ))}
       </div>
+
+      {/* New Chat Button Component */}
+      {onAddNewChat && (
+        <NewChatButton
+          primaryColor={primaryColor}
+          onSelectUser={onAddNewChat}
+        />
+      )}
 
       {isMobile && (
         <div style={{
