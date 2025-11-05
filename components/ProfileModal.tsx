@@ -1,6 +1,3 @@
-// ============= components/ProfileModal.tsx =============
-'use client'
-
 import React from 'react';
 import { X, MessageCircle, Info } from 'lucide-react';
 
@@ -63,7 +60,7 @@ export default function ProfileModal({
           }
         `}
       </style>
-      
+
       <div
         style={{
           background: '#1a1a1a',
@@ -109,43 +106,116 @@ export default function ProfileModal({
           </button>
         </div>
 
-        {/* Profile Picture Section */}
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          padding: '40px 20px',
-          background: '#0f0f0f',
-        }}>
-          <div style={{
-            width: '200px',
-            height: '200px',
-            borderRadius: '50%',
+        {/* Full-Width Profile Image Section */}
+        <div 
+          style={{
+            width: '100%',
+            aspectRatio: '1 / 1',
+            background: '#000',
+            position: 'relative',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'linear-gradient(135deg, #fff, #cccccc)',
-            fontSize: '80px',
+            cursor: 'pointer',
+          }}
+          onClick={onClose}
+        >
+          {/* Profile Image */}
+          <div style={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            fontSize: '120px',
             fontWeight: 'bold',
-            color: '#000',
-            marginBottom: '20px',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+            color: '#fff',
           }}>
             {chat.avatar}
           </div>
-          <h2 style={{
-            color: '#fff',
-            margin: 0,
-            fontSize: '24px',
-            fontWeight: '600',
-          }}>{chat.name}</h2>
-          {chat.phone && (
-            <p style={{
-              color: '#999',
-              margin: '5px 0 0 0',
-              fontSize: '14px',
-            }}>{chat.phone}</p>
-          )}
+          
+          {/* Bottom Overlay with Name */}
+          <div style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, transparent 100%)',
+            padding: '60px 20px 20px',
+          }}>
+            <h2 style={{
+              color: '#fff',
+              margin: 0,
+              fontSize: '24px',
+              fontWeight: '500',
+              textShadow: '0 2px 8px rgba(0,0,0,0.4)',
+            }}>{chat.name}</h2>
+            {chat.phone && (
+              <p style={{
+                color: '#e5e5e5',
+                margin: '4px 0 0 0',
+                fontSize: '14px',
+                textShadow: '0 1px 4px rgba(0,0,0,0.4)',
+              }}>{chat.phone}</p>
+            )}
+          </div>
+
+          {/* Action Icons Overlay */}
+          <div style={{
+            position: 'absolute',
+            bottom: '20px',
+            right: '20px',
+            display: 'flex',
+            gap: '12px',
+          }}>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onMessageClick?.();
+                onClose();
+              }}
+              style={{
+                width: '48px',
+                height: '48px',
+                borderRadius: '50%',
+                background: primaryColor,
+                border: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                transition: 'transform 0.2s',
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              <MessageCircle size={22} color="#000" />
+            </button>
+            
+            <button
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: '48px',
+                height: '48px',
+                borderRadius: '50%',
+                background: 'rgba(255,255,255,0.25)',
+                backdropFilter: 'blur(10px)',
+                border: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                transition: 'transform 0.2s',
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              <Info size={22} color="#fff" />
+            </button>
+          </div>
         </div>
 
         {/* Info Sections */}
@@ -173,99 +243,6 @@ export default function ProfileModal({
               }}>{chat.about}</p>
             </div>
           )}
-
-          {/* Action Buttons */}
-          <div style={{
-            display: 'flex',
-            gap: '10px',
-            marginTop: '20px',
-          }}>
-            <button
-              onClick={() => {
-                onMessageClick?.();
-                onClose();
-              }}
-              style={{
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '15px',
-                background: '#0f0f0f',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#1a1a1a';
-                e.currentTarget.style.transform = 'translateY(-2px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#0f0f0f';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
-            >
-              <div style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '50%',
-                background: primaryColor,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-                <MessageCircle size={20} color="#000" />
-              </div>
-              <span style={{
-                color: '#fff',
-                fontSize: '13px',
-                fontWeight: '500',
-              }}>Message</span>
-            </button>
-
-            <button
-              style={{
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '15px',
-                background: '#0f0f0f',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#1a1a1a';
-                e.currentTarget.style.transform = 'translateY(-2px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#0f0f0f';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
-            >
-              <div style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '50%',
-                background: '#333',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-                <Info size={20} color="#fff" />
-              </div>
-              <span style={{
-                color: '#fff',
-                fontSize: '13px',
-                fontWeight: '500',
-              }}>Info</span>
-            </button>
-          </div>
         </div>
       </div>
     </div>
