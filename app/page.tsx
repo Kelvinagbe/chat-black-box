@@ -21,6 +21,15 @@ export default function BlackBoxChat() {
   const primaryColor = '#00ff7f';
   const accentColor = '#fff';
 
+  // Convert chats to state so we can add new ones
+  const [chats, setChats] = useState([
+    { id: 1, name: 'Dev Team', lastMessage: 'Push to production?', time: '10:30', unread: 2, avatar: 'DT', verified: true },
+    { id: 2, name: 'Sarah Chen', lastMessage: 'Code review done ✓', time: '09:15', unread: 0, avatar: 'SC', verified: true },
+    { id: 3, name: 'Project Alpha', lastMessage: 'Meeting at 3pm', time: 'Yesterday', unread: 5, avatar: 'PA', verified: false },
+    { id: 4, name: 'John Doe', lastMessage: 'Thanks for the help!', time: 'Yesterday', unread: 0, avatar: 'JD', verified: false },
+    { id: 5, name: 'Bug Hunters', lastMessage: 'Found critical issue', time: 'Friday', unread: 1, avatar: 'BH', verified: true },
+  ]);
+
   useEffect(() => {
     const checkMobile = () => {
       const mobile = window.innerWidth < 768;
@@ -43,14 +52,6 @@ export default function BlackBoxChat() {
 
     return () => clearTimeout(timer);
   }, []);
-
-  const chats = [
-    { id: 1, name: 'Dev Team', lastMessage: 'Push to production?', time: '10:30', unread: 2, avatar: 'DT', verified: true },
-    { id: 2, name: 'Sarah Chen', lastMessage: 'Code review done ✓', time: '09:15', unread: 0, avatar: 'SC', verified: true },
-    { id: 3, name: 'Project Alpha', lastMessage: 'Meeting at 3pm', time: 'Yesterday', unread: 5, avatar: 'PA', verified: false },
-    { id: 4, name: 'John Doe', lastMessage: 'Thanks for the help!', time: 'Yesterday', unread: 0, avatar: 'JD', verified: false },
-    { id: 5, name: 'Bug Hunters', lastMessage: 'Found critical issue', time: 'Friday', unread: 1, avatar: 'BH', verified: true },
-  ];
 
   const messages = [
     { id: 1, sender: 'Sarah Chen', content: 'Hey team! How are things going?', time: '09:00', isMine: false },
@@ -85,6 +86,47 @@ export default function BlackBoxChat() {
       router.push('/profile');
     } else {
       setShowChatView(false);
+    }
+  };
+
+  // Handler for adding new chat
+  const handleAddNewChat = (user: any) => {
+    console.log('Adding new chat with:', user);
+    
+    // Check if chat already exists
+    const existingChatIndex = chats.findIndex(chat => chat.id === user.id);
+    
+    if (existingChatIndex !== -1) {
+      // Chat already exists, just select it
+      setSelectedChat(existingChatIndex);
+      if (isMobile) {
+        setShowChatView(true);
+      }
+      return;
+    }
+    
+    // Create new chat
+    const newChat = {
+      id: user.id,
+      name: user.name,
+      lastMessage: 'Start chatting...',
+      time: 'Now',
+      unread: 0,
+      avatar: user.avatar,
+      verified: user.verified,
+      about: user.about,
+      phone: user.phone,
+    };
+    
+    // Add to chats list
+    setChats([newChat, ...chats]); // Add to beginning of list
+    
+    // Select the new chat (it's now at index 0)
+    setSelectedChat(0);
+    
+    // On mobile, show the chat view
+    if (isMobile) {
+      setShowChatView(true);
     }
   };
 
@@ -174,6 +216,7 @@ export default function BlackBoxChat() {
           onTabChange={handleTabChange}
           primaryColor={primaryColor}
           accentColor={accentColor}
+          onAddNewChat={handleAddNewChat}
         />
         {renderMainContent()}
       </div>
