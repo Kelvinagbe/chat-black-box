@@ -3,7 +3,11 @@
 import React, { useState } from 'react';
 import { ArrowRight, MessageCircle, Shield, Zap } from 'lucide-react';
 
-export default function ChatboxOnboarding() {
+interface OnboardingProps {
+  onComplete: () => void;
+}
+
+export default function Onboarding({ onComplete }: OnboardingProps) {
   const [currentPage, setCurrentPage] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [slideDirection, setSlideDirection] = useState('left');
@@ -56,8 +60,7 @@ export default function ChatboxOnboarding() {
   };
 
   const handleGetStarted = () => {
-    alert('Getting started!');
-    // Navigate to login or main app
+    onComplete();
   };
 
   const IconComponent = pages[currentPage].icon;
