@@ -1,24 +1,14 @@
-// ============= components/ChatSidebar.tsx =============
 'use client'
 
 import React from 'react';
 import { Search, MoreVertical, MessageSquare, Users, User } from 'lucide-react';
 import ChatListItem from './ChatListItem';
 import NewChatButton from './NewChatButton';
-
-interface Chat {
-  id: number;
-  name: string;
-  lastMessage: string;
-  time: string;
-  unread: number;
-  avatar: string;
-  verified: boolean;
-}
+import { Chat } from '@/types/chat';
 
 interface ChatSidebarProps {
   chats: Chat[];
-  selectedChat: number;
+  selectedChat: number | null;
   onChatSelect: (index: number) => void;
   isMobile: boolean;
   showChatView: boolean;
@@ -27,180 +17,57 @@ interface ChatSidebarProps {
   primaryColor: string;
   accentColor: string;
   onAddNewChat?: (user: any) => void;
+  discoverUsers?: any[];
+  friendRequests?: any[];
+  onSendFriendRequest?: (userId: string) => Promise<void>;
+  onAcceptRequest?: (requestId: string, fromUserId: string) => Promise<void>;
+  onRejectRequest?: (requestId: string) => Promise<void>;
 }
 
-export default function ChatSidebar({
-  chats,
-  selectedChat,
-  onChatSelect,
-  isMobile,
-  showChatView,
-  activeTab,
-  onTabChange,
-  primaryColor,
-  accentColor,
-  onAddNewChat,
-}: ChatSidebarProps) {
+const TabButton = ({ active, icon: Icon, label, onClick, primaryColor }: any) => (
+  <button onClick={onClick} style={{ background: 'transparent', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', cursor: 'pointer', padding: '8px 20px', transition: 'color 0.2s', color: active ? primaryColor : '#666' }}>
+    <Icon size={24} />
+    <span style={{ fontSize: '11px', fontWeight: '500' }}>{label}</span>
+  </button>
+);
+
+export default function ChatSidebar({ chats, selectedChat, onChatSelect, isMobile, showChatView, activeTab, onTabChange, primaryColor, accentColor, onAddNewChat }: ChatSidebarProps) {
   return (
-    <div style={{
-      width: isMobile ? '100vw' : '350px',
-      maxWidth: '100vw',
-      background: '#0a0a0a',
-      borderRight: '1px solid #1a1a1a',
-      display: isMobile && showChatView ? 'none' : 'flex',
-      flexDirection: 'column',
-      zIndex: 10,
-      position: isMobile ? 'relative' : 'static',
-    }}>
-      <div style={{
-        padding: '15px 20px',
-        background: '#0f0f0f',
-        borderBottom: '1px solid #1a1a1a',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-      }}>
-        <h2 style={{
-          fontSize: '20px',
-          fontWeight: 'bold',
-          margin: 0,
-        }}>
+    <div style={{ width: isMobile ? '100vw' : '350px', maxWidth: '100vw', background: '#0a0a0a', borderRight: '1px solid #1a1a1a', display: isMobile && showChatView ? 'none' : 'flex', flexDirection: 'column', zIndex: 10, position: isMobile ? 'relative' : 'static' }}>
+      {/* Header */}
+      <div style={{ padding: '15px 20px', background: '#0f0f0f', borderBottom: '1px solid #1a1a1a', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h2 style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}>
           <span style={{ color: '#b1b2be' }}>Black</span>
           <span style={{ color: primaryColor }}>Box</span>
         </h2>
-        <div style={{
-          display: 'flex',
-          gap: '15px',
-        }}>
+        <div style={{ display: 'flex', gap: '15px' }}>
           <Search size={20} color={accentColor} style={{ cursor: 'pointer' }} />
           <MoreVertical size={20} color={accentColor} style={{ cursor: 'pointer' }} />
         </div>
       </div>
 
-      <div style={{
-        padding: '15px',
-        background: '#0f0f0f',
-        borderBottom: '1px solid #1a1a1a',
-        position: 'relative',
-      }}>
-        <Search size={16} color="#666" style={{
-          position: 'absolute',
-          left: '30px',
-          top: '50%',
-          transform: 'translateY(-50%)',
-        }} />
-        <input
-          type="text"
-          placeholder="Search chats..."
-          style={{
-            width: '100%',
-            padding: '10px 10px 10px 40px',
-            background: '#1a1a1a',
-            border: '1px solid #2a2a2a',
-            borderRadius: '8px',
-            color: '#fff',
-            fontSize: '14px',
-            outline: 'none',
-          }}
-        />
+      {/* Search Bar */}
+      <div style={{ padding: '15px', background: '#0f0f0f', borderBottom: '1px solid #1a1a1a', position: 'relative' }}>
+        <Search size={16} color="#666" style={{ position: 'absolute', left: '30px', top: '50%', transform: 'translateY(-50%)' }} />
+        <input type="text" placeholder="Search chats..." style={{ width: '100%', padding: '10px 10px 10px 40px', background: '#1a1a1a', border: '1px solid #2a2a2a', borderRadius: '8px', color: '#fff', fontSize: '14px', outline: 'none' }} />
       </div>
 
-      <div style={{
-        flex: 1,
-        overflowY: 'auto',
-        position: 'relative',
-      }}>
+      {/* Chat List */}
+      <div style={{ flex: 1, overflowY: 'auto', position: 'relative' }}>
         {chats.map((chat, index) => (
-          <ChatListItem
-            key={chat.id}
-            chat={chat}
-            isSelected={selectedChat === index}
-            onSelect={() => onChatSelect(index)}
-            primaryColor={primaryColor}
-          />
+          <ChatListItem key={chat.id} chat={chat} isSelected={selectedChat === index} onSelect={() => onChatSelect(index)} primaryColor={primaryColor} />
         ))}
       </div>
 
-      {/* New Chat Button Component */}
-      {onAddNewChat && (
-        <NewChatButton
-          primaryColor={primaryColor}
-          onSelectUser={onAddNewChat}
-        />
-      )}
+      {/* New Chat Button */}
+      {onAddNewChat && <NewChatButton primaryColor={primaryColor} onSelectUser={onAddNewChat} />}
 
+      {/* Mobile Navigation */}
       {isMobile && (
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-around',
-          alignItems: 'center',
-          padding: '10px 0',
-          background: '#0f0f0f',
-          borderTop: '1px solid #1a1a1a',
-        }}>
-          <button
-            onClick={() => onTabChange('chats')}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '5px',
-              cursor: 'pointer',
-              padding: '8px 20px',
-              transition: 'color 0.2s',
-              color: activeTab === 'chats' ? primaryColor : '#666',
-            }}
-          >
-            <MessageSquare size={24} />
-            <span style={{
-              fontSize: '11px',
-              fontWeight: '500',
-            }}>Chats</span>
-          </button>
-          <button
-            onClick={() => onTabChange('requests')}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '5px',
-              cursor: 'pointer',
-              padding: '8px 20px',
-              transition: 'color 0.2s',
-              color: activeTab === 'requests' ? primaryColor : '#666',
-            }}
-          >
-            <Users size={24} />
-            <span style={{
-              fontSize: '11px',
-              fontWeight: '500',
-            }}>Requests</span>
-          </button>
-          <button
-            onClick={() => onTabChange('profile')}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '5px',
-              cursor: 'pointer',
-              padding: '8px 20px',
-              transition: 'color 0.2s',
-              color: activeTab === 'profile' ? primaryColor : '#666',
-            }}
-          >
-            <User size={24} />
-            <span style={{
-              fontSize: '11px',
-              fontWeight: '500',
-            }}>Profile</span>
-          </button>
+        <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', padding: '10px 0', background: '#0f0f0f', borderTop: '1px solid #1a1a1a' }}>
+          <TabButton active={activeTab === 'chats'} icon={MessageSquare} label="Chats" onClick={() => onTabChange('chats')} primaryColor={primaryColor} />
+          <TabButton active={activeTab === 'requests'} icon={Users} label="Requests" onClick={() => onTabChange('requests')} primaryColor={primaryColor} />
+          <TabButton active={activeTab === 'profile'} icon={User} label="Profile" onClick={() => onTabChange('profile')} primaryColor={primaryColor} />
         </div>
       )}
     </div>
