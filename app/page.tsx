@@ -15,7 +15,7 @@ import { useMessages } from '@/hooks/useMessages';
 export default function BlackBoxChat() {
   const router = useRouter();
   const [message, setMessage] = useState('');
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(true);
   const [showChatView, setShowChatView] = useState(false);
   const [activeTab, setActiveTab] = useState('chats');
   const [showSplash, setShowSplash] = useState(true);
