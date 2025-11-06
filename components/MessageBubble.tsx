@@ -24,7 +24,7 @@ export default function MessageBubble({ message, primaryColor }: MessageBubblePr
       justifyContent: message.isMine ? 'flex-end' : 'flex-start',
     }}>
       <div style={{
-        maxWidth: '70%',
+        maxWidth: '100%',
         minWidth: '120px',
         padding: '10px 15px',
         fontSize: '14px',
