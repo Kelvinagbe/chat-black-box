@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react';
-import { Search, MoreVertical, MessageSquare, Users, User } from 'lucide-react';
+import { MoreVertical, MessageSquare, Users, User } from 'lucide-react';
 import ChatListItem from './ChatListItem';
 import NewChatButton from './NewChatButton';
 import { Chat } from '@/types/chat';
@@ -40,16 +40,7 @@ export default function ChatSidebar({ chats, selectedChat, onChatSelect, isMobil
           <span style={{ color: '#b1b2be' }}>Black</span>
           <span style={{ color: primaryColor }}>Box</span>
         </h2>
-        <div style={{ display: 'flex', gap: '15px' }}>
-          <Search size={20} color={accentColor} style={{ cursor: 'pointer' }} />
-          <MoreVertical size={20} color={accentColor} style={{ cursor: 'pointer' }} />
-        </div>
-      </div>
-
-      {/* Search Bar */}
-      <div style={{ padding: '15px', background: '#0f0f0f', borderBottom: '1px solid #1a1a1a', position: 'relative' }}>
-        <Search size={16} color="#666" style={{ position: 'absolute', left: '30px', top: '50%', transform: 'translateY(-50%)' }} />
-        <input type="text" placeholder="Search chats..." style={{ width: '100%', padding: '10px 10px 10px 40px', background: '#1a1a1a', border: '1px solid #2a2a2a', borderRadius: '8px', color: '#fff', fontSize: '14px', outline: 'none' }} />
+        <MoreVertical size={20} color={accentColor} style={{ cursor: 'pointer' }} />
       </div>
 
       {/* Chat List */}
