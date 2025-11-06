@@ -1,4 +1,4 @@
-// lib/firebase.ts - Updated
+// lib/firebase.ts
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
@@ -20,11 +20,7 @@ const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0
 
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-export const database = getDatabase(app);
 export const realtimeDb = getDatabase(app);
-export const rtdb = getDatabase(app);
-
-// Initialize Performance Monitoring (only in browser)
 export const perf = typeof window !== 'undefined' ? getPerformance(app) : null;
 
 export default app;
