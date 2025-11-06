@@ -2,19 +2,26 @@
 
 import React, { useState } from 'react';
 import { ArrowRight } from 'lucide-react';
+import { auth } from '@/lib/firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
 
 export default function ChatboxLogin() {
+  const router = useRouter();
   const [step, setStep] = useState<'email' | 'password'>('email');
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [slideOut, setSlideOut] = useState<boolean>(false);
   const [slideDirection, setSlideDirection] = useState<'left' | 'right'>('left');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
 
   const primaryColor = '#00ff7f';
   const accentColor = '#fff';
 
   const handleEmailSubmit = () => {
     if (email) {
+      setError('');
       setSlideDirection('left');
       setSlideOut(true);
       setTimeout(() => {
@@ -24,10 +31,32 @@ export default function ChatboxLogin() {
     }
   };
 
-  const handlePasswordSubmit = () => {
+  const handlePasswordSubmit = async () => {
     if (password) {
-      console.log('Login with:', { email, password });
-      alert('Login successful!');
+      setLoading(true);
+      setError('');
+      
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        router.push('/');
+      } catch (err: any) {
+        console.error('Login error:', err);
+        let errorMessage = 'Failed to sign in. Please try again.';
+        
+        if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
+          errorMessage = 'Invalid email or password.';
+        } else if (err.code === 'auth/user-not-found') {
+          errorMessage = 'No account found with this email.';
+        } else if (err.code === 'auth/too-many-requests') {
+          errorMessage = 'Too many attempts. Please try again later.';
+        } else if (err.code === 'auth/network-request-failed') {
+          errorMessage = 'Network error. Please check your connection.';
+        }
+        
+        setError(errorMessage);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -35,6 +64,16 @@ export default function ChatboxLogin() {
     if (e.key === 'Enter') {
       action();
     }
+  };
+
+  const handleBackToEmail = () => {
+    setSlideDirection('right');
+    setSlideOut(true);
+    setError('');
+    setTimeout(() => {
+      setStep('email');
+      setSlideOut(false);
+    }, 300);
   };
 
   return (
@@ -124,6 +163,7 @@ export default function ChatboxLogin() {
                     onChange={(e) => setEmail(e.target.value)}
                     onKeyPress={(e) => handleKeyPress(e, handleEmailSubmit)}
                     placeholder="Enter your email"
+                    autoFocus
                     style={{
                       width: '100%',
                       background: '#0a0a0a',
@@ -149,6 +189,7 @@ export default function ChatboxLogin() {
 
                 <button
                   onClick={handleEmailSubmit}
+                  disabled={!email || loading}
                   style={{
                     width: '100%',
                     background: primaryColor,
@@ -157,7 +198,7 @@ export default function ChatboxLogin() {
                     padding: '12px',
                     borderRadius: '8px',
                     border: 'none',
-                    cursor: 'pointer',
+                    cursor: !email || loading ? 'not-allowed' : 'pointer',
                     fontSize: '15px',
                     display: 'flex',
                     alignItems: 'center',
@@ -165,10 +206,13 @@ export default function ChatboxLogin() {
                     gap: '8px',
                     transition: 'all 0.2s',
                     boxShadow: `0 4px 20px ${primaryColor}40`,
+                    opacity: !email || loading ? 0.5 : 1,
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                    e.currentTarget.style.boxShadow = `0 6px 30px ${primaryColor}60`;
+                    if (email && !loading) {
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = `0 6px 30px ${primaryColor}60`;
+                    }
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.transform = 'translateY(0)';
@@ -197,25 +241,22 @@ export default function ChatboxLogin() {
               <div>
                 <div style={{ marginBottom: '24px' }}>
                   <button
-                    onClick={() => {
-                      setSlideDirection('right');
-                      setSlideOut(true);
-                      setTimeout(() => {
-                        setStep('email');
-                        setSlideOut(false);
-                      }, 300);
-                    }}
+                    onClick={handleBackToEmail}
+                    disabled={loading}
                     style={{
                       color: primaryColor,
                       fontSize: '14px',
                       marginBottom: '16px',
                       background: 'none',
                       border: 'none',
-                      cursor: 'pointer',
+                      cursor: loading ? 'not-allowed' : 'pointer',
                       padding: 0,
                       textDecoration: 'none',
+                      opacity: loading ? 0.5 : 1,
                     }}
-                    onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
+                    onMouseEnter={(e) => {
+                      if (!loading) e.currentTarget.style.textDecoration = 'underline';
+                    }}
                     onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
                   >
                     ← Change email
@@ -242,6 +283,7 @@ export default function ChatboxLogin() {
                     onKeyPress={(e) => handleKeyPress(e, handlePasswordSubmit)}
                     placeholder="Enter your password"
                     autoFocus
+                    disabled={loading}
                     style={{
                       width: '100%',
                       background: '#0a0a0a',
@@ -253,10 +295,13 @@ export default function ChatboxLogin() {
                       fontSize: '15px',
                       transition: 'all 0.3s',
                       boxSizing: 'border-box',
+                      opacity: loading ? 0.5 : 1,
                     }}
                     onFocus={(e) => {
-                      e.target.style.borderColor = primaryColor;
-                      e.target.style.boxShadow = `0 0 0 1px ${primaryColor}40`;
+                      if (!loading) {
+                        e.target.style.borderColor = primaryColor;
+                        e.target.style.boxShadow = `0 0 0 1px ${primaryColor}40`;
+                      }
                     }}
                     onBlur={(e) => {
                       e.target.style.borderColor = '#222';
@@ -265,8 +310,24 @@ export default function ChatboxLogin() {
                   />
                 </div>
 
+                {error && (
+                  <div style={{
+                    background: '#ff000020',
+                    border: '1px solid #ff0000',
+                    color: '#ff5555',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    marginBottom: '16px',
+                    textAlign: 'center',
+                  }}>
+                    {error}
+                  </div>
+                )}
+
                 <button
                   onClick={handlePasswordSubmit}
+                  disabled={!password || loading}
                   style={{
                     width: '100%',
                     background: primaryColor,
@@ -275,7 +336,7 @@ export default function ChatboxLogin() {
                     padding: '12px',
                     borderRadius: '8px',
                     border: 'none',
-                    cursor: 'pointer',
+                    cursor: !password || loading ? 'not-allowed' : 'pointer',
                     fontSize: '15px',
                     display: 'flex',
                     alignItems: 'center',
@@ -284,32 +345,39 @@ export default function ChatboxLogin() {
                     transition: 'all 0.2s',
                     boxShadow: `0 4px 20px ${primaryColor}40`,
                     marginBottom: '16px',
+                    opacity: !password || loading ? 0.5 : 1,
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                    e.currentTarget.style.boxShadow = `0 6px 30px ${primaryColor}60`;
+                    if (password && !loading) {
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = `0 6px 30px ${primaryColor}60`;
+                    }
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.transform = 'translateY(0)';
                     e.currentTarget.style.boxShadow = `0 4px 20px ${primaryColor}40`;
                   }}
                 >
-                  Sign in
-                  <ArrowRight size={20} />
+                  {loading ? 'Signing in...' : 'Sign in'}
+                  {!loading && <ArrowRight size={20} />}
                 </button>
 
                 <button
+                  disabled={loading}
                   style={{
                     width: '100%',
                     color: primaryColor,
                     fontSize: '14px',
                     background: 'none',
                     border: 'none',
-                    cursor: 'pointer',
+                    cursor: loading ? 'not-allowed' : 'pointer',
                     padding: '8px',
                     textDecoration: 'none',
+                    opacity: loading ? 0.5 : 1,
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
+                  onMouseEnter={(e) => {
+                    if (!loading) e.currentTarget.style.textDecoration = 'underline';
+                  }}
                   onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
                 >
                   Forgot password?
