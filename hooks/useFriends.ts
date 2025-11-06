@@ -1,28 +1,29 @@
-'use client' 
+'use client'
 
 import { useState, useEffect } from 'react';
 import { ref, onValue } from 'firebase/database';
-import { db } from '@/lib/firebase';
+import { realtimeDb } from '@/lib/firebase';
 import { Friend } from '@/types/chat';
 
 export const useFriends = (currentUserId: string | null) => {
   const [friends, setFriends] = useState<Record<string, Friend>>({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!currentUserId) return;
+    if (!currentUserId) {
+      setFriends({});
+      setLoading(false);
+      return;
+    }
 
-    const friendsRef = ref(db, `friends/${currentUserId}`);
-    
+    const friendsRef = ref(realtimeDb, `friends/${currentUserId}`);
     const unsubscribe = onValue(friendsRef, (snapshot) => {
-      if (snapshot.exists()) {
-        setFriends(snapshot.val());
-      } else {
-        setFriends({});
-      }
+      setFriends(snapshot.exists() ? snapshot.val() : {});
+      setLoading(false);
     });
 
     return () => unsubscribe();
   }, [currentUserId]);
 
-  return { friends };
+  return { friends, loading };
 };
