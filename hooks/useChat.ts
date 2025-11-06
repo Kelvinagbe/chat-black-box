@@ -6,6 +6,7 @@ import { useUsers } from './useUsers';
 import { useFriendRequests } from './useFriendRequests';
 import { useFriends } from './useFriends';
 import { useChatRooms } from './useChatRooms';
+import { Chat, DiscoverUser } from '@/types/chat';
 
 export const useChat = () => {
   const { currentUser, loading: authLoading } = useAuth();
@@ -27,14 +28,14 @@ export const useChat = () => {
   const { chatRooms } = useChatRooms(chatRoomIds);
 
   // Transform friends into chat list with user info and last message
-  const chatList = useMemo(() => {
+  const chatList = useMemo((): Chat[] => {
     return Object.entries(friends).map(([friendId, friendData]) => {
       const friend = allUsers[friendId];
       const chatRoom = chatRooms[friendData.chatRoomId];
       const lastMessage = chatRoom?.lastMessage;
 
       return {
-        id: friendId,
+        id: friendId, // Now a string
         chatRoomId: friendData.chatRoomId,
         name: friend?.nickname || 'Anonymous',
         avatar: friend?.avatar,
@@ -50,7 +51,7 @@ export const useChat = () => {
   }, [friends, allUsers, chatRooms]);
 
   // Get users that are not friends (for discover tab)
-  const discoverUsers = useMemo(() => {
+  const discoverUsers = useMemo((): DiscoverUser[] => {
     return Object.entries(allUsers)
       .filter(([userId]) => {
         return userId !== currentUser?.uid && !friends[userId];
