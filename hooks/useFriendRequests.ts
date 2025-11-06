@@ -3,15 +3,7 @@
 import { useState, useEffect } from 'react';
 import { ref, onValue, set, push, remove } from 'firebase/database';
 import { db } from '@/lib/firebase';
-
-interface FriendRequest {
-  id: string;
-  from: string;
-  fromName: string;
-  fromAvatar?: string;
-  status: 'pending' | 'accepted' | 'rejected';
-  timestamp: number;
-}
+import { FriendRequest } from '@/types/chat';
 
 export const useFriendRequests = (currentUserId: string | null) => {
   const [friendRequests, setFriendRequests] = useState<FriendRequest[]>([]);
