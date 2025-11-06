@@ -1,4 +1,3 @@
-
 // ============= components/MessageBubble.tsx =============
 'use client'
 
@@ -26,12 +25,15 @@ export default function MessageBubble({ message, primaryColor }: MessageBubblePr
     }}>
       <div style={{
         maxWidth: '70%',
+        minWidth: '120px',
         padding: '10px 15px',
         fontSize: '14px',
         wordWrap: 'break-word',
+        overflowWrap: 'break-word',
         background: message.isMine ? '#fff' : '#1a1a1a',
         color: message.isMine ? '#000' : '#fff',
         borderRadius: message.isMine ? '12px 12px 0 12px' : '12px 12px 12px 0',
+        boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
       }}>
         {!message.isMine && (
           <div style={{
@@ -39,14 +41,21 @@ export default function MessageBubble({ message, primaryColor }: MessageBubblePr
             fontWeight: '600',
             marginBottom: '5px',
             color: primaryColor,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
           }}>{message.sender}</div>
         )}
-        <div>{message.content}</div>
+        <div style={{
+          marginBottom: '4px',
+        }}>{message.content}</div>
         <div style={{
           fontSize: '10px',
           marginTop: '5px',
           textAlign: 'right',
-          color: message.isMine ? '#666' : '#666',
+          color: message.isMine ? '#666' : '#888',
+          whiteSpace: 'nowrap',
+          userSelect: 'none',
         }}>{message.time}</div>
       </div>
     </div>
