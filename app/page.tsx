@@ -1,13 +1,16 @@
-// ============= app/page.tsx (Main Component) =============
 'use client'
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { auth } from '@/lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 import ChatSidebar from '@/components/ChatSidebar';
 import ChatHeader from '@/components/ChatHeader';
 import MessageBubble from '@/components/MessageBubble';
 import MessageInput from '@/components/MessageInput';
 import SplashScreen from '@/components/SplashScreen';
+import Login from '@/components/Login';
+import Onboarding from '@/components/Onboarding';
 
 export default function BlackBoxChat() {
   const router = useRouter();
@@ -17,6 +20,9 @@ export default function BlackBoxChat() {
   const [showChatView, setShowChatView] = useState(false);
   const [activeTab, setActiveTab] = useState('chats');
   const [showSplash, setShowSplash] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [authChecking, setAuthChecking] = useState(true);
 
   const primaryColor = '#00ff7f';
   const accentColor = '#fff';
@@ -29,6 +35,39 @@ export default function BlackBoxChat() {
     { id: 4, name: 'John Doe', lastMessage: 'Thanks for the help!', time: 'Yesterday', unread: 0, avatar: 'JD', verified: false },
     { id: 5, name: 'Bug Hunters', lastMessage: 'Found critical issue', time: 'Friday', unread: 1, avatar: 'BH', verified: true },
   ]);
+
+  // Check if user has seen splash screen before
+  useEffect(() => {
+    const hasSeenSplash = localStorage.getItem('hasSeenSplash');
+    if (hasSeenSplash === 'true') {
+      setShowSplash(false);
+    }
+  }, []);
+
+  // Check authentication status
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setIsAuthenticated(true);
+        
+        // Check if this is a new user
+        const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
+        if (hasSeenOnboarding !== 'true') {
+          setShowOnboarding(true);
+        }
+      } else {
+        setIsAuthenticated(false);
+        // Check if user should see onboarding first
+        const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
+        if (hasSeenOnboarding !== 'true') {
+          setShowOnboarding(true);
+        }
+      }
+      setAuthChecking(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -46,12 +85,21 @@ export default function BlackBoxChat() {
 
   useEffect(() => {
     // Hide splash screen after 3 seconds
-    const timer = setTimeout(() => {
-      setShowSplash(false);
-    }, 3000);
+    if (showSplash) {
+      const timer = setTimeout(() => {
+        setShowSplash(false);
+        localStorage.setItem('hasSeenSplash', 'true');
+      }, 3000);
 
-    return () => clearTimeout(timer);
-  }, []);
+      return () => clearTimeout(timer);
+    }
+  }, [showSplash]);
+
+  // Handle onboarding completion
+  const handleOnboardingComplete = () => {
+    localStorage.setItem('hasSeenOnboarding', 'true');
+    setShowOnboarding(false);
+  };
 
   const messages = [
     { id: 1, sender: 'Sarah Chen', content: 'Hey team! How are things going?', time: '09:00', isMine: false },
@@ -92,10 +140,10 @@ export default function BlackBoxChat() {
   // Handler for adding new chat
   const handleAddNewChat = (user: any) => {
     console.log('Adding new chat with:', user);
-    
+
     // Check if chat already exists
     const existingChatIndex = chats.findIndex(chat => chat.id === user.id);
-    
+
     if (existingChatIndex !== -1) {
       // Chat already exists, just select it
       setSelectedChat(existingChatIndex);
@@ -104,7 +152,7 @@ export default function BlackBoxChat() {
       }
       return;
     }
-    
+
     // Create new chat
     const newChat = {
       id: user.id,
@@ -117,13 +165,13 @@ export default function BlackBoxChat() {
       about: user.about,
       phone: user.phone,
     };
-    
+
     // Add to chats list
     setChats([newChat, ...chats]); // Add to beginning of list
-    
+
     // Select the new chat (it's now at index 0)
     setSelectedChat(0);
-    
+
     // On mobile, show the chat view
     if (isMobile) {
       setShowChatView(true);
@@ -181,7 +229,7 @@ export default function BlackBoxChat() {
 
   return (
     <>
-      {/* Splash Screen Overlay */}
+      {/* Splash Screen Overlay - Only shows once */}
       {showSplash && (
         <div style={{
           position: 'fixed',
@@ -195,31 +243,59 @@ export default function BlackBoxChat() {
         </div>
       )}
 
-      {/* Main Chat Application */}
-      <div style={{
-        display: 'flex',
-        height: '100vh',
-        background: '#000',
-        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-        overflow: 'hidden',
-        position: 'relative',
-        opacity: showSplash ? 0 : 1,
-        transition: 'opacity 0.5s ease-in',
-      }}>
-        <ChatSidebar
-          chats={chats}
-          selectedChat={selectedChat}
-          onChatSelect={handleChatSelect}
-          isMobile={isMobile}
-          showChatView={showChatView}
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
-          primaryColor={primaryColor}
-          accentColor={accentColor}
-          onAddNewChat={handleAddNewChat}
-        />
-        {renderMainContent()}
-      </div>
+      {/* Onboarding Screen - Shows for new users before login */}
+      {!showSplash && showOnboarding && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          zIndex: 9998,
+        }}>
+          <Onboarding onComplete={handleOnboardingComplete} />
+        </div>
+      )}
+
+      {/* Login Screen - Shows if not authenticated and onboarding is done */}
+      {!showSplash && !showOnboarding && !isAuthenticated && !authChecking && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          zIndex: 9997,
+        }}>
+          <Login />
+        </div>
+      )}
+
+      {/* Main Chat Application - Shows only when authenticated */}
+      {!showSplash && isAuthenticated && (
+        <div style={{
+          display: 'flex',
+          height: '100vh',
+          background: '#000',
+          fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+          overflow: 'hidden',
+          position: 'relative',
+        }}>
+          <ChatSidebar
+            chats={chats}
+            selectedChat={selectedChat}
+            onChatSelect={handleChatSelect}
+            isMobile={isMobile}
+            showChatView={showChatView}
+            activeTab={activeTab}
+            onTabChange={handleTabChange}
+            primaryColor={primaryColor}
+            accentColor={accentColor}
+            onAddNewChat={handleAddNewChat}
+          />
+          {renderMainContent()}
+        </div>
+      )}
     </>
   );
 }
