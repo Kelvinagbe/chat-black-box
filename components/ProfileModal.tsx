@@ -1,29 +1,31 @@
+'use client'
+
 import React from 'react';
-import { X, MessageCircle, Phone, Video, Info } from 'lucide-react';
+import { X, MessageCircle, Phone, Video, Mail } from 'lucide-react';
+import VerifiedBadge from './VerifiedBadge';
+import { Chat } from '@/types/chat';
 
 interface ProfileModalProps {
-  chat: {
-    id: number;
-    name: string;
-    avatar: string;
-    verified: boolean;
-    about?: string;
-    phone?: string;
-  };
+  chat: Chat;
   isOpen: boolean;
   onClose: () => void;
   primaryColor: string;
-  onMessageClick?: () => void;
+  onMessageClick: () => void;
 }
 
-export default function ProfileModal({ 
-  chat, 
-  isOpen, 
-  onClose, 
+export default function ProfileModal({
+  chat,
+  isOpen,
+  onClose,
   primaryColor,
-  onMessageClick 
+  onMessageClick,
 }: ProfileModalProps) {
   if (!isOpen) return null;
+
+  const handleMessageClick = () => {
+    onMessageClick();
+    onClose();
+  };
 
   return (
     <div
@@ -33,275 +35,286 @@ export default function ProfileModal({
         left: 0,
         right: 0,
         bottom: 0,
-        background: '#000',
+        background: 'rgba(0, 0, 0, 0.85)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         zIndex: 1000,
+        padding: '20px',
       }}
       onClick={onClose}
     >
       <div
         style={{
+          background: '#0f0f0f',
+          borderRadius: '16px',
           width: '100%',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          background: '#111',
+          maxWidth: '400px',
+          border: '1px solid #1a1a1a',
+          overflow: 'hidden',
         }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div style={{
+          padding: '20px',
+          borderBottom: '1px solid #1a1a1a',
           display: 'flex',
+          justifyContent: 'space-between',
           alignItems: 'center',
-          padding: '12px 16px',
-          background: '#1f1f1f',
         }}>
+          <h3 style={{
+            margin: 0,
+            fontSize: '18px',
+            fontWeight: '600',
+            color: '#fff',
+          }}>Profile</h3>
           <button
             onClick={onClose}
             style={{
               background: 'transparent',
               border: 'none',
-              color: '#8696a0',
               cursor: 'pointer',
-              padding: '8px',
+              padding: '5px',
               display: 'flex',
               alignItems: 'center',
-              marginRight: '20px',
+              color: '#999',
+              transition: 'color 0.2s',
             }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = '#fff')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = '#999')}
           >
             <X size={24} />
           </button>
-          <h3 style={{
-            color: '#e9edef',
-            margin: 0,
-            fontSize: '19px',
-            fontWeight: '400',
-          }}>Contact info</h3>
         </div>
 
-        {/* Scrollable Content */}
-        <div style={{
-          flex: 1,
-          overflowY: 'auto',
-          background: '#111',
-        }}>
-          {/* Profile Image Section */}
-          <div 
-            style={{
-              width: '100%',
-              aspectRatio: '1 / 1',
-              background: '#000',
-              position: 'relative',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            {/* Profile Image */}
+        {/* Profile Content */}
+        <div style={{ padding: '30px 20px' }}>
+          {/* Avatar */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            marginBottom: '30px',
+          }}>
             <div style={{
-              width: '100%',
-              height: '100%',
+              width: '100px',
+              height: '100px',
+              borderRadius: '50%',
+              background: chat.avatar ? 'transparent' : 'linear-gradient(135deg, #fff, #cccccc)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              fontSize: '140px',
-              fontWeight: '400',
-              color: '#fff',
+              fontSize: '36px',
+              fontWeight: 'bold',
+              color: '#000',
+              marginBottom: '15px',
+              overflow: 'hidden',
+              position: 'relative',
             }}>
-              {chat.avatar}
+              {chat.avatar ? (
+                <img 
+                  src={chat.avatar} 
+                  alt={chat.name} 
+                  style={{ 
+                    width: '100%', 
+                    height: '100%', 
+                    objectFit: 'cover' 
+                  }} 
+                />
+              ) : (
+                chat.name.substring(0, 2).toUpperCase()
+              )}
+              {chat.status === 'online' && (
+                <div style={{
+                  position: 'absolute',
+                  bottom: '5px',
+                  right: '5px',
+                  width: '20px',
+                  height: '20px',
+                  background: primaryColor,
+                  border: '3px solid #0f0f0f',
+                  borderRadius: '50%',
+                }} />
+              )}
+            </div>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              marginBottom: '5px',
+            }}>
+              <h2 style={{
+                margin: 0,
+                fontSize: '24px',
+                fontWeight: 'bold',
+                color: '#fff',
+              }}>
+                {chat.name}
+              </h2>
+              {chat.verified && <VerifiedBadge size={20} />}
+            </div>
+            <div style={{
+              fontSize: '14px',
+              color: chat.status === 'online' ? primaryColor : '#666',
+              fontWeight: '500',
+            }}>
+              {chat.status === 'online' ? 'Online' : 'Offline'}
             </div>
           </div>
 
-          {/* Name and Phone Section */}
-          <div style={{
-            background: '#111',
-            padding: '24px 30px',
-            borderBottom: '1px solid #222',
-          }}>
-            <h2 style={{
-              color: '#e9edef',
-              margin: '0 0 4px 0',
-              fontSize: '24px',
-              fontWeight: '400',
-            }}>{chat.name}</h2>
-            {chat.phone && (
-              <p style={{
-                color: '#8696a0',
-                margin: 0,
-                fontSize: '17px',
-              }}>{chat.phone}</p>
-            )}
-          </div>
+          {/* Info Section */}
+          {chat.role && (
+            <div style={{
+              background: '#1a1a1a',
+              borderRadius: '12px',
+              padding: '15px',
+              marginBottom: '20px',
+            }}>
+              <div style={{
+                fontSize: '12px',
+                color: '#666',
+                marginBottom: '5px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+              }}>
+                Role
+              </div>
+              <div style={{
+                fontSize: '15px',
+                color: '#fff',
+              }}>
+                {chat.role}
+              </div>
+            </div>
+          )}
 
           {/* Action Buttons */}
           <div style={{
-            display: 'flex',
-            padding: '8px 0',
-            background: '#111',
-            borderBottom: '1px solid #222',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, 1fr)',
+            gap: '10px',
+            marginBottom: '20px',
           }}>
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onMessageClick?.();
-                onClose();
-              }}
+              onClick={handleMessageClick}
               style={{
-                flex: 1,
+                background: primaryColor,
+                border: 'none',
+                borderRadius: '12px',
+                padding: '15px',
+                cursor: 'pointer',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 gap: '8px',
-                padding: '20px',
-                background: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
+                transition: 'opacity 0.2s',
               }}
+              onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.8')}
+              onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
             >
-              <div style={{
-                width: '48px',
-                height: '48px',
-                borderRadius: '50%',
-                background: primaryColor,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-                <MessageCircle size={24} color="#111" fill="#111" />
-              </div>
+              <MessageCircle size={20} color="#000" />
               <span style={{
-                color: '#8696a0',
-                fontSize: '13px',
+                fontSize: '11px',
+                color: '#000',
+                fontWeight: '600',
               }}>Message</span>
             </button>
 
             <button
               style={{
-                flex: 1,
+                background: '#1a1a1a',
+                border: 'none',
+                borderRadius: '12px',
+                padding: '15px',
+                cursor: 'pointer',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 gap: '8px',
-                padding: '20px',
-                background: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
+                transition: 'background 0.2s',
               }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = '#2a2a2a')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = '#1a1a1a')}
             >
-              <div style={{
-                width: '48px',
-                height: '48px',
-                borderRadius: '50%',
-                background: primaryColor,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-                <Phone size={24} color="#111" />
-              </div>
+              <Phone size={20} color={primaryColor} />
               <span style={{
-                color: '#8696a0',
-                fontSize: '13px',
-              }}>Audio</span>
+                fontSize: '11px',
+                color: primaryColor,
+                fontWeight: '600',
+              }}>Call</span>
             </button>
 
             <button
               style={{
-                flex: 1,
+                background: '#1a1a1a',
+                border: 'none',
+                borderRadius: '12px',
+                padding: '15px',
+                cursor: 'pointer',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 gap: '8px',
-                padding: '20px',
-                background: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
+                transition: 'background 0.2s',
               }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = '#2a2a2a')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = '#1a1a1a')}
             >
-              <div style={{
-                width: '48px',
-                height: '48px',
-                borderRadius: '50%',
-                background: primaryColor,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-                <Video size={24} color="#111" />
-              </div>
+              <Video size={20} color={primaryColor} />
               <span style={{
-                color: '#8696a0',
-                fontSize: '13px',
+                fontSize: '11px',
+                color: primaryColor,
+                fontWeight: '600',
               }}>Video</span>
+            </button>
+
+            <button
+              style={{
+                background: '#1a1a1a',
+                border: 'none',
+                borderRadius: '12px',
+                padding: '15px',
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '8px',
+                transition: 'background 0.2s',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = '#2a2a2a')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = '#1a1a1a')}
+            >
+              <Mail size={20} color={primaryColor} />
+              <span style={{
+                fontSize: '11px',
+                color: primaryColor,
+                fontWeight: '600',
+              }}>Mail</span>
             </button>
           </div>
 
-          {/* About Section */}
-          {chat.about && (
-            <div style={{
-              background: '#111',
-              padding: '20px 30px',
-              borderBottom: '1px solid #222',
-            }}>
-              <p style={{
-                color: '#00a884',
-                fontSize: '14px',
-                margin: '0 0 8px 0',
-              }}>About</p>
-              <p style={{
-                color: '#e9edef',
-                margin: 0,
-                fontSize: '17px',
-                lineHeight: '22px',
-              }}>{chat.about}</p>
-            </div>
-          )}
-
-          {/* Media, links and docs */}
+          {/* Additional Info */}
           <div style={{
-            background: '#111',
-            padding: '20px 30px',
-            borderBottom: '1px solid #222',
-            cursor: 'pointer',
+            borderTop: '1px solid #1a1a1a',
+            paddingTop: '20px',
           }}>
             <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
+              fontSize: '12px',
+              color: '#666',
+              marginBottom: '10px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
             }}>
-              <div>
-                <p style={{
-                  color: '#e9edef',
-                  fontSize: '17px',
-                  margin: '0 0 2px 0',
-                }}>Media, links and docs</p>
-                <p style={{
-                  color: '#8696a0',
-                  fontSize: '15px',
-                  margin: 0,
-                }}>None</p>
-              </div>
-              <div style={{
-                color: '#8696a0',
-                fontSize: '20px',
-              }}>›</div>
+              About
             </div>
-          </div>
-
-          {/* Encryption Notice */}
-          <div style={{
-            background: '#111',
-            padding: '20px 30px',
-            textAlign: 'center',
-          }}>
-            <p style={{
-              color: '#8696a0',
+            <div style={{
               fontSize: '14px',
-              margin: 0,
-              lineHeight: '20px',
+              color: '#999',
+              lineHeight: '1.6',
             }}>
-              🔒 Your personal messages are end-to-end encrypted
-            </p>
+              {chat.role ? `${chat.role} • ` : ''}Member of BlackBox Chat
+            </div>
           </div>
         </div>
       </div>
