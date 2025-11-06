@@ -2,8 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { auth } from '@/lib/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
 import ChatSidebar from '@/components/ChatSidebar';
 import ChatHeader from '@/components/ChatHeader';
 import MessageBubble from '@/components/MessageBubble';
@@ -11,30 +9,41 @@ import MessageInput from '@/components/MessageInput';
 import SplashScreen from '@/components/SplashScreen';
 import Login from '@/components/Login';
 import Onboarding from '@/components/Onboarding';
+import { useChat } from '@/hooks/useChat';
+import { useMessages } from '@/hooks/useMessages';
 
 export default function BlackBoxChat() {
   const router = useRouter();
-  const [selectedChat, setSelectedChat] = useState(0);
   const [message, setMessage] = useState('');
   const [isMobile, setIsMobile] = useState(false);
   const [showChatView, setShowChatView] = useState(false);
   const [activeTab, setActiveTab] = useState('chats');
   const [showSplash, setShowSplash] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [authChecking, setAuthChecking] = useState(true);
+  const [selectedChatIndex, setSelectedChatIndex] = useState<number | null>(null);
+  const [selectedChatRoomId, setSelectedChatRoomId] = useState<string | null>(null);
 
   const primaryColor = '#00ff7f';
   const accentColor = '#fff';
 
-  // Convert chats to state so we can add new ones
-  const [chats, setChats] = useState([
-    { id: 1, name: 'Dev Team', lastMessage: 'Push to production?', time: '10:30', unread: 2, avatar: 'DT', verified: true },
-    { id: 2, name: 'Sarah Chen', lastMessage: 'Code review done ✓', time: '09:15', unread: 0, avatar: 'SC', verified: true },
-    { id: 3, name: 'Project Alpha', lastMessage: 'Meeting at 3pm', time: 'Yesterday', unread: 5, avatar: 'PA', verified: false },
-    { id: 4, name: 'John Doe', lastMessage: 'Thanks for the help!', time: 'Yesterday', unread: 0, avatar: 'JD', verified: false },
-    { id: 5, name: 'Bug Hunters', lastMessage: 'Found critical issue', time: 'Friday', unread: 1, avatar: 'BH', verified: true },
-  ]);
+  // Use the main chat hook
+  const {
+    currentUser,
+    authLoading,
+    chatList,
+    discoverUsers,
+    friendRequests,
+    sendFriendRequest,
+    acceptFriendRequest,
+    rejectFriendRequest,
+  } = useChat();
+
+  // Use messages hook for selected chat
+  const { 
+    messages, 
+    loading: messagesLoading, 
+    sendMessage: sendMessageToDb 
+  } = useMessages(selectedChatRoomId);
 
   // Check if user has seen splash screen before
   useEffect(() => {
@@ -44,30 +53,24 @@ export default function BlackBoxChat() {
     }
   }, []);
 
-  // Check authentication status
+  // Check authentication and onboarding status
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setIsAuthenticated(true);
-        
-        // Check if this is a new user
-        const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
-        if (hasSeenOnboarding !== 'true') {
-          setShowOnboarding(true);
-        }
-      } else {
-        setIsAuthenticated(false);
-        // Check if user should see onboarding first
-        const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
-        if (hasSeenOnboarding !== 'true') {
-          setShowOnboarding(true);
-        }
-      }
-      setAuthChecking(false);
-    });
+    if (authLoading) return;
 
-    return () => unsubscribe();
-  }, []);
+    if (currentUser) {
+      // User is authenticated
+      const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
+      if (hasSeenOnboarding !== 'true') {
+        setShowOnboarding(true);
+      }
+    } else {
+      // Not authenticated
+      const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
+      if (hasSeenOnboarding !== 'true') {
+        setShowOnboarding(true);
+      }
+    }
+  }, [currentUser, authLoading]);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -101,22 +104,28 @@ export default function BlackBoxChat() {
     setShowOnboarding(false);
   };
 
-  const messages = [
-    { id: 1, sender: 'Sarah Chen', content: 'Hey team! How are things going?', time: '09:00', isMine: false },
-    { id: 2, sender: 'You', content: 'Working on the new feature', time: '09:05', isMine: true },
-    { id: 3, sender: 'Sarah Chen', content: 'Awesome! Need any help?', time: '09:06', isMine: false },
-    { id: 4, sender: 'You', content: 'All good, thanks! Should be done by EOD', time: '09:10', isMine: true },
-    { id: 5, sender: 'Sarah Chen', content: 'Perfect! Let me know if you need anything', time: '09:15', isMine: false },
-  ];
+  // Transform Firebase messages to component format
+  const transformedMessages = messages.map((msg, index) => ({
+    id: index + 1,
+    sender: msg.senderId === currentUser?.uid ? 'You' : chatList[selectedChatIndex || 0]?.name || 'User',
+    content: msg.text,
+    time: new Date(msg.timestamp).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+    isMine: msg.senderId === currentUser?.uid,
+  }));
 
-  const handleSendMessage = () => {
-    if (message.trim()) {
+  const handleSendMessage = async () => {
+    if (!message.trim() || !selectedChatRoomId || !currentUser) return;
+
+    const result = await sendMessageToDb(selectedChatRoomId, currentUser.uid, message);
+    
+    if (result?.success) {
       setMessage('');
     }
   };
 
   const handleChatSelect = (index: number) => {
-    setSelectedChat(index);
+    setSelectedChatIndex(index);
+    setSelectedChatRoomId(chatList[index].chatRoomId);
     if (isMobile) {
       setShowChatView(true);
     }
@@ -137,49 +146,83 @@ export default function BlackBoxChat() {
     }
   };
 
-  // Handler for adding new chat
-  const handleAddNewChat = (user: any) => {
-    console.log('Adding new chat with:', user);
-
-    // Check if chat already exists
-    const existingChatIndex = chats.findIndex(chat => chat.id === user.id);
-
-    if (existingChatIndex !== -1) {
-      // Chat already exists, just select it
-      setSelectedChat(existingChatIndex);
-      if (isMobile) {
-        setShowChatView(true);
-      }
-      return;
-    }
-
-    // Create new chat
-    const newChat = {
-      id: user.id,
-      name: user.name,
-      lastMessage: 'Start chatting...',
-      time: 'Now',
-      unread: 0,
-      avatar: user.avatar,
-      verified: user.verified,
-      about: user.about,
-      phone: user.phone,
-    };
-
-    // Add to chats list
-    setChats([newChat, ...chats]); // Add to beginning of list
-
-    // Select the new chat (it's now at index 0)
-    setSelectedChat(0);
-
-    // On mobile, show the chat view
-    if (isMobile) {
-      setShowChatView(true);
+  // Handler for sending friend request from discover tab
+  const handleSendFriendRequest = async (userId: string) => {
+    const result = await sendFriendRequest(userId);
+    if (result?.success) {
+      // Show success toast or notification
+      console.log('Friend request sent successfully');
     }
   };
 
+  // Handler for accepting friend request
+  const handleAcceptRequest = async (requestId: string, fromUserId: string) => {
+    const result = await acceptFriendRequest(requestId, fromUserId);
+    if (result?.success) {
+      // Optionally switch to chats tab and open the new chat
+      setActiveTab('chats');
+      const newChatIndex = chatList.findIndex(chat => chat.id === fromUserId);
+      if (newChatIndex !== -1) {
+        handleChatSelect(newChatIndex);
+      }
+    }
+  };
+
+  // Handler for rejecting friend request
+  const handleRejectRequest = async (requestId: string) => {
+    await rejectFriendRequest(requestId);
+  };
+
+  // Handler for adding new chat (from modal)
+  const handleAddNewChat = async (user: any) => {
+    console.log('Adding new chat with:', user);
+
+    // Check if already friends
+    const existingChatIndex = chatList.findIndex(chat => chat.id === user.id);
+
+    if (existingChatIndex !== -1) {
+      // Already friends, just select the chat
+      handleChatSelect(existingChatIndex);
+      return;
+    }
+
+    // Send friend request
+    await handleSendFriendRequest(user.id);
+  };
+
   const renderMainContent = () => {
-    // Chat view - main chat interface
+    if (selectedChatIndex === null || !chatList[selectedChatIndex]) {
+      return (
+        <div style={{
+          flex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: '#050505',
+          color: '#666',
+        }}>
+          <div style={{ textAlign: 'center' }}>
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              width="64" 
+              height="64" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2"
+              style={{ margin: '0 auto 20px' }}
+            >
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            <h3 style={{ margin: '0 0 10px', color: '#999' }}>Select a chat to start messaging</h3>
+            <p>Choose a conversation from the sidebar</p>
+          </div>
+        </div>
+      );
+    }
+
+    const selectedChat = chatList[selectedChatIndex];
+
     return (
       <div style={{
         flex: 1,
@@ -192,7 +235,7 @@ export default function BlackBoxChat() {
           display: isMobile && !showChatView ? 'none' : 'block',
         }}>
           <ChatHeader
-            chat={chats[selectedChat]}
+            chat={selectedChat}
             isMobile={isMobile}
             onBack={handleBackToList}
             accentColor={accentColor}
@@ -208,9 +251,32 @@ export default function BlackBoxChat() {
           flexDirection: 'column',
           gap: '10px',
         }}>
-          {messages.map((msg) => (
-            <MessageBubble key={msg.id} message={msg} primaryColor={primaryColor} />
-          ))}
+          {messagesLoading ? (
+            <div style={{ textAlign: 'center', color: '#666', padding: '40px' }}>
+              Loading messages...
+            </div>
+          ) : transformedMessages.length === 0 ? (
+            <div style={{ textAlign: 'center', color: '#666', padding: '40px' }}>
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="48" 
+                height="48" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2"
+                style={{ margin: '0 auto 20px' }}
+              >
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+              <h3 style={{ margin: '0 0 10px', color: '#999' }}>Start the conversation</h3>
+              <p>Send a message to get things started</p>
+            </div>
+          ) : (
+            transformedMessages.map((msg) => (
+              <MessageBubble key={msg.id} message={msg} primaryColor={primaryColor} />
+            ))
+          )}
         </div>
 
         <div style={{
@@ -229,7 +295,7 @@ export default function BlackBoxChat() {
 
   return (
     <>
-      {/* Splash Screen Overlay - Only shows once */}
+      {/* Splash Screen Overlay */}
       {showSplash && (
         <div style={{
           position: 'fixed',
@@ -243,7 +309,7 @@ export default function BlackBoxChat() {
         </div>
       )}
 
-      {/* Onboarding Screen - Shows for new users before login */}
+      {/* Onboarding Screen */}
       {!showSplash && showOnboarding && (
         <div style={{
           position: 'fixed',
@@ -257,8 +323,8 @@ export default function BlackBoxChat() {
         </div>
       )}
 
-      {/* Login Screen - Shows if not authenticated and onboarding is done */}
-      {!showSplash && !showOnboarding && !isAuthenticated && !authChecking && (
+      {/* Login Screen */}
+      {!showSplash && !showOnboarding && !currentUser && !authLoading && (
         <div style={{
           position: 'fixed',
           top: 0,
@@ -271,8 +337,8 @@ export default function BlackBoxChat() {
         </div>
       )}
 
-      {/* Main Chat Application - Shows only when authenticated */}
-      {!showSplash && isAuthenticated && (
+      {/* Main Chat Application */}
+      {!showSplash && currentUser && (
         <div style={{
           display: 'flex',
           height: '100vh',
@@ -282,8 +348,8 @@ export default function BlackBoxChat() {
           position: 'relative',
         }}>
           <ChatSidebar
-            chats={chats}
-            selectedChat={selectedChat}
+            chats={chatList}
+            selectedChat={selectedChatIndex}
             onChatSelect={handleChatSelect}
             isMobile={isMobile}
             showChatView={showChatView}
@@ -292,6 +358,11 @@ export default function BlackBoxChat() {
             primaryColor={primaryColor}
             accentColor={accentColor}
             onAddNewChat={handleAddNewChat}
+            discoverUsers={discoverUsers}
+            friendRequests={friendRequests}
+            onSendFriendRequest={handleSendFriendRequest}
+            onAcceptRequest={handleAcceptRequest}
+            onRejectRequest={handleRejectRequest}
           />
           {renderMainContent()}
         </div>
