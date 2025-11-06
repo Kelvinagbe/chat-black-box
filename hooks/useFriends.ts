@@ -3,11 +3,7 @@
 import { useState, useEffect } from 'react';
 import { ref, onValue } from 'firebase/database';
 import { db } from '@/lib/firebase';
-
-interface Friend {
-  chatRoomId: string;
-  addedAt: number;
-}
+import { Friend } from '@/types/chat';
 
 export const useFriends = (currentUserId: string | null) => {
   const [friends, setFriends] = useState<Record<string, Friend>>({});
