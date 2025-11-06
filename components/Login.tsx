@@ -1,14 +1,14 @@
-'use client' 
+'use client'
 
 import React, { useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 
 export default function ChatboxLogin() {
-  const [step, setStep] = useState('email');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [slideOut, setSlideOut] = useState(false);
-  const [slideDirection, setSlideDirection] = useState('left');
+  const [step, setStep] = useState<'email' | 'password'>('email');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [slideOut, setSlideOut] = useState<boolean>(false);
+  const [slideDirection, setSlideDirection] = useState<'left' | 'right'>('left');
 
   const primaryColor = '#00ff7f';
   const accentColor = '#fff';
@@ -31,7 +31,7 @@ export default function ChatboxLogin() {
     }
   };
 
-  const handleKeyPress = (e, action) => {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>, action: () => void) => {
     if (e.key === 'Enter') {
       action();
     }
