@@ -3,18 +3,7 @@
 import { useState, useEffect } from 'react';
 import { ref, onValue } from 'firebase/database';
 import { db } from '@/lib/firebase';
-
-interface LastMessage {
-  senderId: string;
-  text: string;
-  timestamp: number;
-}
-
-interface ChatRoom {
-  participants: Record<string, boolean>;
-  createdAt: number;
-  lastMessage: LastMessage | null;
-}
+import { ChatRoom } from '@/types/chat';
 
 export const useChatRooms = (chatRoomIds: string[]) => {
   const [chatRooms, setChatRooms] = useState<Record<string, ChatRoom>>({});
